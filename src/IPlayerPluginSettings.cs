@@ -26,7 +26,7 @@ namespace IPlayerPlugin {
     public System.Drawing.Image Image {
       get {
         Image image = null;
-        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("IPlayerPlugin.Sample.png");
+        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("IPlayerPlugin.48x48.png");
         if (imageStream != null) {
           image = System.Drawing.Image.FromStream(imageStream);
           imageStream.Close();
@@ -37,19 +37,19 @@ namespace IPlayerPlugin {
 
     public string Link {
       get {
-        return "www.playon.tv";
+        return "http://www.bbc.co.uk/iplayer";
       }
     }
 
     public string Name {
       get {
-        return "Sample Plugin";
+        return "BBC iPlayer";
       }
     }
 
     public string Description {
       get {
-        return "This is a sample PlayOn plugin.";
+        return "Watch and listen to BBC programmes.";
       }
     }
 
@@ -64,20 +64,6 @@ namespace IPlayerPlugin {
     }
 
     public string CheckForUpdate() {
-      try {
-        HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create("http://www.themediamall.com/downloads/playon/plugins/sample/version.xml");
-        StreamReader sr = new StreamReader(req.GetResponse().GetResponseStream());
-        string xml = sr.ReadToEnd();
-        sr.Close();
-        int start = xml.IndexOf("<version>") + "<version>".Length;
-        int end = xml.IndexOf("</version>", start);
-        Version version = new Version(xml.Substring(start, end - start));
-        Version curVersion = Assembly.GetExecutingAssembly().GetName().Version;
-        if (curVersion < version)
-          return "http://www.themediamall.com/playon/plugins";
-      }
-      catch {
-      }
       return null;
     }
 

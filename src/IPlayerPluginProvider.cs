@@ -116,7 +116,7 @@ namespace IPlayerPlugin {
 
     public string Name {
       get {
-        return "Sample Plugin";
+        return "BBC iPlayer";
       }
     }
 
@@ -210,7 +210,7 @@ namespace IPlayerPlugin {
     public System.Drawing.Image Image {
       get {
         System.Drawing.Image image = null;
-        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("IPlayerPlugin.Sample.png");
+        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("IPlayerPlugin.48x48.png");
         if (imageStream != null) {
           image = System.Drawing.Image.FromStream(imageStream);
           imageStream.Close();
