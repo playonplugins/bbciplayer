@@ -60,8 +60,6 @@ namespace BBCiPlayer {
             entry.SelectSingleNode("atom:link[@rel='alternate']", atomNS).Attributes["href"].Value;
 
           NameValueCollection properties = new NameValueCollection();
-          properties["Description"] =
-            entry.SelectSingleNode("atom:content", atomNS).InnerText;
           properties["Icon"] =
             entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
           properties["Date"] =
