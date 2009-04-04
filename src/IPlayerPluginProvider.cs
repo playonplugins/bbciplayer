@@ -9,82 +9,71 @@ using MediaMallTechnologies.Plugin;
 namespace IPlayerPlugin {
   public class IPlayerPluginProvider : IPlayOnProvider {
 
-    private IPlayOnHost host;
-    private VirtualFolder rootFolder;
-    private Hashtable titleLookup = new Hashtable();
-    private Hashtable folderLookup = new Hashtable();
+    private IPlayOnHost    host;
+    private VirtualFolder  rootFolder;
+    private Hashtable      titleLookup            = new Hashtable();
+    private Hashtable      folderLookup           = new Hashtable();
+    private int            dynamicFolderCacheTime = 300; // seconds
 
     public
     IPlayerPluginProvider() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
-      VirtualFolder subFolder = new VirtualFolder(createGuid(), "Sample Folder", "http://www.themediamall.com/downloads/playon/plugins/api/sample/sample.xml", true);
+      VirtualFolder subFolder =
+        new VirtualFolder(createGuid(),
+                          "Popular",
+                          "http://feeds.bbc.co.uk/iplayer/popular/tv/list",
+                          true);
       this.rootFolder.AddFolder(subFolder);
       this.folderLookup[subFolder.Id] = subFolder;
     }
 
+    private string
+    readFromURL(string url) {
+      HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
+      StreamReader sr    = new StreamReader(req.GetResponse().GetResponseStream());
+      string content     = sr.ReadToEnd();
+      sr.Close();
+      return content;
+    }
+
     private void
-    load(VirtualFolder vf) {
+    loadDynamicFolder(VirtualFolder vf) {
       try {
-        // reset this folder to clear potential stale content (relevant for dynamically loaded data)
-        vf.Reset();
+        vf.Reset(); // Remove existing items
 
-        // load dynamic data
-        HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(vf.SourceURL);
-        StreamReader sr = new StreamReader(req.GetResponse().GetResponseStream());
-        string xml = sr.ReadToEnd();
-        sr.Close();
-
-        // parse XML
         XmlDocument doc = new XmlDocument();
-        doc.LoadXml(xml);
-        XmlNodeList items = doc.GetElementsByTagName("item");
-        foreach (XmlNode node in items) {
-          string title = "", duration = "", description = "", date = "", thumbnail = "", url = "";
-          foreach (XmlNode child in node.ChildNodes) {
-            switch (child.Name) {
-              case "title":
-                title = child.InnerText;
-                break;
-              case "description":
-                description = child.InnerText;
-                break;
-              case "url":
-                url = child.InnerText;
-                break;
-              case "thumbnail":
-                thumbnail = child.InnerText;
-                break;
-              case "duration":
-                // required format is "H:MM:SS"
-                TimeSpan ts = TimeSpan.FromMilliseconds(double.Parse(child.InnerText));
-                duration = ts.Hours + ":" + ts.Minutes.ToString("D2") + ":" + ts.Seconds.ToString("D2");
-                break;
-              case "pubDate":
-                // required format is "2008-04-10T06:30:00"
-                date = DateTime.Parse(child.InnerText, System.Globalization.CultureInfo.InvariantCulture).ToString("s");
-                break;
-            }
-          }
+        doc.LoadXml(readFromURL(vf.SourceURL));
 
-          // add media
-          NameValueCollection props = new NameValueCollection();
-          props["Duration"] = duration;
-          props["Description"] = description;
-          props["Date"] = date;
-          props["Icon"] = thumbnail;
+        XmlNamespaceManager mediaNS = new XmlNamespaceManager(doc.NameTable);
+        mediaNS.AddNamespace("media", "http://search.yahoo.com/mrss/");
 
-          // create ID
+        foreach (XmlNode entry in doc.GetElementsByTagName("entry")) {
+          string title =
+            entry.SelectSingleNode("title").InnerText;
+          string url =
+            entry.SelectSingleNode("link[@rel='alternate']").Attributes["href"].Value;
+
+          NameValueCollection properties = new NameValueCollection();
+          properties["Description"] =
+            entry.SelectSingleNode("content").InnerText;
+          properties["Icon"] =
+            entry.SelectSingleNode("link/media:content/media:thumbnail", mediaNS).Attributes["url"].Value;
+          properties["Date"] =
+            DateTime.Parse(
+              entry.SelectSingleNode("updated").InnerText,
+              System.Globalization.CultureInfo.InvariantCulture
+              ).ToString("s");
+
           string guid = vf.FindGuid(url);
-          if (guid == null)
-            guid = createGuid();
-          SharedOnlineMediaInfo info = new SharedOnlineMediaInfo(guid, vf.Id, title, url, 2, props, url);
+          if (guid == null) guid = createGuid();
 
-          // cache lookup and add to folder
+          SharedOnlineMediaInfo info =
+            new SharedOnlineMediaInfo(guid, vf.Id, title, url, 2, properties, url);
+
           this.titleLookup[info.Id] = info;
           vf.AddMedia(info);
         }
-      }
-      catch (Exception ex) {
+      } catch (Exception ex) {
         log("Error: " + ex);
       }
     }
@@ -120,62 +109,57 @@ namespace IPlayerPlugin {
 
     public Payload
     GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
-      if (id == null || id.Length == 0)
-        return new Payload("-1", "-1", "[Unknown]", 0, new ArrayList(0));
+      if (id == null || id.Length == 0) {
+        return new Payload("-1", "-1", "[Invalid Request]", 0, new ArrayList(0));
+      }
 
-      ArrayList currentList;
+      ArrayList currentList = new ArrayList();
 
-      // Root
-      if (id == this.ID) {
-        // return all subfolders for this root folder
-        currentList = new ArrayList();
-        foreach (VirtualFolder vf in this.rootFolder.Items) {
-          vf.ParentId = this.ID;
-          currentList.Add(new SharedMediaFolderInfo(vf.Id, id, vf.Title, vf.Items.Count));
+      if (id == this.ID) { // root
+        foreach (VirtualFolder subFolder in this.rootFolder.Items) {
+          subFolder.ParentId = this.ID;
+          currentList.Add(new SharedMediaFolderInfo(subFolder.Id, id, subFolder.Title, subFolder.Items.Count));
         }
         return new Payload(id, "0", this.Name, currentList.Count, getRange(currentList, startIndex, requestCount));
       }
-      else {
-        // if ID is for an item, return it
-        if (titleLookup[id] != null) {
-          SharedOnlineMediaInfo fileInfo = (SharedOnlineMediaInfo)titleLookup[id];
-          currentList = new ArrayList();
-          currentList.Add(fileInfo);
-          return new Payload(id, fileInfo.OwnerId, fileInfo.Title, 1, currentList, false);
-        }
-        // if ID is for a folder, return it with subfolders and items
-        if (folderLookup[id] != null) {
-          currentList = new ArrayList();
-          VirtualFolder vf = (VirtualFolder)folderLookup[id];
-          
-          // load this folder if dynamic (but avoid unnecessary web traffic)
-          if (vf.Dynamic && (DateTime.Now - vf.LastLoad).TotalSeconds > 300) {
-            load(vf);
-            vf.LastLoad = DateTime.Now;
-          }
 
-          foreach (object o in vf.Items) {
-            if (o is VirtualFolder) {
-              VirtualFolder folder = o as VirtualFolder;
-              currentList.Add(new SharedMediaFolderInfo(folder.Id, vf.Id, folder.Title, folder.Items.Count));
-            }
-            else if (o is SharedOnlineMediaInfo) {
-              SharedOnlineMediaInfo file = o as SharedOnlineMediaInfo;
-              currentList.Add(file);
-            }
-          }
-          return new Payload(id, vf.ParentId, vf.Title, currentList.Count, getRange(currentList, startIndex, requestCount));
-        }
-
-        return new Payload("-1", "-1", "[Unknown]", 0, new ArrayList(0));
+      if (titleLookup[id] != null) {
+        SharedOnlineMediaInfo fileInfo = (SharedOnlineMediaInfo)titleLookup[id];
+        currentList.Add(fileInfo);
+        return new Payload(id, fileInfo.OwnerId, fileInfo.Title, 1, currentList, false);
       }
+
+      if (folderLookup[id] != null) {
+        VirtualFolder folder = (VirtualFolder)folderLookup[id];
+
+        if (folder.Dynamic && (DateTime.Now - folder.LastLoad).TotalSeconds > this.dynamicFolderCacheTime) {
+          loadDynamicFolder(folder);
+          folder.LastLoad = DateTime.Now;
+        }
+
+        foreach (object entry in folder.Items) {
+          if (entry is VirtualFolder) {
+            VirtualFolder subFolder = entry as VirtualFolder;
+            currentList.Add(
+              new SharedMediaFolderInfo(subFolder.Id, subFolder.Id, subFolder.Title, subFolder.Items.Count));
+          } else if (entry is SharedOnlineMediaInfo) {
+            SharedOnlineMediaInfo fileInfo = entry as SharedOnlineMediaInfo;
+            currentList.Add(fileInfo);
+          }
+        }
+        return new Payload(id, folder.ParentId, folder.Title, currentList.Count,
+                           getRange(currentList, startIndex, requestCount));
+      }
+
+      return new Payload("-1", "-1", "[Unknown Request]", 0, new ArrayList(0));
     }
 
     public System.Drawing.Image
     Image {
       get {
         System.Drawing.Image image = null;
-        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Logo48x48.png");
+        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().
+                             GetManifestResourceStream("Logo48x48.png");
         if (imageStream != null) {
           image = System.Drawing.Image.FromStream(imageStream);
           imageStream.Close();
@@ -186,7 +170,7 @@ namespace IPlayerPlugin {
 
     public string
     Resolve(SharedMediaFileInfo fileInfo) {
-      string type = fileInfo.Path.EndsWith(".wmv") ? "wmp" : "fp";
+      string type = "fp";
       string xml = "<media><url type=\"" + type + "\">" + fileInfo.Path + "</url></media>";
       return xml;
     }
