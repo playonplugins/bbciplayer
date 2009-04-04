@@ -1,7 +1,7 @@
-using System;
-using System.Collections;
+namespace BBCiPlayer {
+  using System;
+  using System.Collections;
 
-namespace IPlayerPlugin {
   public class VirtualFolder {
 
     private string     title;

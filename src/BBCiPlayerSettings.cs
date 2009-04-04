@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Specialized;
-using System.Drawing;
-using System.IO;
-using System.Net;
-using System.Reflection;
+namespace BBCiPlayer {
+  using System;
+  using System.Collections.Specialized;
+  using System.Drawing;
+  using System.IO;
+  using System.Net;
+  using System.Reflection;
 
-namespace IPlayerPlugin {
-  public class IPlayerPluginSettings : MediaMallTechnologies.Plugin.IPlayOnProviderSettings {
+  public class BBCiPlayerSettings : MediaMallTechnologies.Plugin.IPlayOnProviderSettings {
 
     public System.Drawing.Image
     Image {

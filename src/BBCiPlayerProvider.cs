@@ -1,13 +1,13 @@
-using System;
-using System.Collections;
-using System.Collections.Specialized;
-using System.IO;
-using System.Net;
-using System.Xml;
-using MediaMallTechnologies.Plugin;
+namespace BBCiPlayer {
+  using System;
+  using System.Collections;
+  using System.Collections.Specialized;
+  using System.IO;
+  using System.Net;
+  using System.Xml;
+  using MediaMallTechnologies.Plugin;
 
-namespace IPlayerPlugin {
-  public class IPlayerPluginProvider : IPlayOnProvider {
+  public class BBCiPlayerProvider : IPlayOnProvider {
 
     private IPlayOnHost    host;
     private VirtualFolder  rootFolder;
@@ -17,7 +17,7 @@ namespace IPlayerPlugin {
     private StreamWriter   logWriter              = null;
 
     public
-    IPlayerPluginProvider() {
+    BBCiPlayerProvider() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
       VirtualFolder subFolder =
         new VirtualFolder(createGuid(),

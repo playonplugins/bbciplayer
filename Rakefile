@@ -2,7 +2,7 @@ LIBRARIES = ["Util", "System.Drawing"]
 SOURCES   = FileList['src/**/*.cs']
 RESOURCES = FileList['res/**/*']
 
-file "IPlayer.plugin" => SOURCES + RESOURCES do |t|
+file "BBCiPlayer.plugin" => SOURCES + RESOURCES do |t|
   system([
     "gmcs -lib:lib -t:library -out:#{t.name}",
     LIBRARIES.map{ |a| "-r:#{a}.dll" },
@@ -10,4 +10,4 @@ file "IPlayer.plugin" => SOURCES + RESOURCES do |t|
     SOURCES ].flatten.join(" "))
 end
 
-task :default => "IPlayer.plugin"
+task :default => "BBCiPlayer.plugin"

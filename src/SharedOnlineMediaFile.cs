@@ -1,7 +1,7 @@
-using System.Collections.Specialized;
-using MediaMallTechnologies.Plugin;
+namespace BBCiPlayer {
+  using System.Collections.Specialized;
+  using MediaMallTechnologies.Plugin;
 
-namespace IPlayerPlugin {
   public class SharedOnlineMediaInfo : SharedMediaFileInfo {
 
     private string onlineIdentifier;
