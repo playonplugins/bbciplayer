@@ -102,22 +102,14 @@ namespace IPlayerPlugin {
 
     public string
     SourceURL {
-      get {
-        return this.sourceUrl;
-      }
-      set {
-        this.sourceUrl = value;
-      }
+      get { return this.sourceUrl; }
+      set { this.sourceUrl = value; }
     }
 
     public bool
     Dynamic {
-      get {
-        return this.dynamic;
-      }
-      set {
-        this.dynamic = value;
-      }
+      get { return this.dynamic; }
+      set { this.dynamic = value; }
     }
 
   }
