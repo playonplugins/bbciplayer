@@ -49,23 +49,24 @@ namespace BBCiPlayer {
         XmlDocument doc = new XmlDocument();
         doc.LoadXml(readFromURL(vf.SourceURL));
 
-        XmlNamespaceManager mediaNS = new XmlNamespaceManager(doc.NameTable);
-        mediaNS.AddNamespace("media", "http://search.yahoo.com/mrss/");
+        XmlNamespaceManager atomNS = new XmlNamespaceManager(doc.NameTable);
+        atomNS.AddNamespace("atom", "http://www.w3.org/2005/Atom");
+        atomNS.AddNamespace("media", "http://search.yahoo.com/mrss/");
 
         foreach (XmlNode entry in doc.GetElementsByTagName("entry")) {
           string title =
-            entry.SelectSingleNode("title").InnerText;
+            entry.SelectSingleNode("atom:title", atomNS).InnerText;
           string url =
-            entry.SelectSingleNode("link[@rel='alternate']").Attributes["href"].Value;
+            entry.SelectSingleNode("atom:link[@rel='alternate']", atomNS).Attributes["href"].Value;
 
           NameValueCollection properties = new NameValueCollection();
           properties["Description"] =
-            entry.SelectSingleNode("content").InnerText;
+            entry.SelectSingleNode("atom:content", atomNS).InnerText;
           properties["Icon"] =
-            entry.SelectSingleNode("link/media:content/media:thumbnail", mediaNS).Attributes["url"].Value;
+            entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
           properties["Date"] =
             DateTime.Parse(
-              entry.SelectSingleNode("updated").InnerText,
+              entry.SelectSingleNode("atom:updated", atomNS).InnerText,
               System.Globalization.CultureInfo.InvariantCulture
               ).ToString("s");
 
