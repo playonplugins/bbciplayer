@@ -30,6 +30,8 @@ namespace IPlayerPlugin {
 
     private string
     readFromURL(string url) {
+      this.Log("readFromURL: "+url);
+
       HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
       StreamReader sr    = new StreamReader(req.GetResponse().GetResponseStream());
       string content     = sr.ReadToEnd();
@@ -39,6 +41,8 @@ namespace IPlayerPlugin {
 
     private void
     loadDynamicFolder(VirtualFolder vf) {
+      this.Log("loadDynamicFolder: "+vf.SourceURL);
+
       try {
         vf.Reset(); // Remove existing items
 
@@ -75,7 +79,7 @@ namespace IPlayerPlugin {
           vf.AddMedia(info);
         }
       } catch (Exception ex) {
-        Log("Error: " + ex);
+        this.Log("Error: " + ex);
       }
     }
 
@@ -107,6 +111,8 @@ namespace IPlayerPlugin {
 
     public Payload
     GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
+      this.Log("GetSharedMedia");
+
       if (id == null || id.Length == 0) {
         return new Payload("-1", "-1", "[Invalid Request]", 0, new ArrayList(0));
       }
@@ -168,6 +174,7 @@ namespace IPlayerPlugin {
 
     public string
     Resolve(SharedMediaFileInfo fileInfo) {
+      this.Log("Resolve: " + fileInfo.Path);
       string type = "fp";
       string xml = "<media><url type=\"" + type + "\">" + fileInfo.Path + "</url></media>";
       return xml;
