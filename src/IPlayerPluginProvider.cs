@@ -7,7 +7,7 @@ using System.Xml;
 using MediaMallTechnologies.Plugin;
 
 namespace IPlayerPlugin {
-  public class IPlayerPluginProvider : MediaMallTechnologies.Plugin.IPlayOnProvider {
+  public class IPlayerPluginProvider : IPlayOnProvider {
 
     private IPlayOnHost host;
     private VirtualFolder rootFolder;
@@ -118,7 +118,7 @@ namespace IPlayerPlugin {
       return items;
     }
 
-    public MediaMallTechnologies.Plugin.Payload
+    public Payload
     GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
       if (id == null || id.Length == 0)
         return new Payload("-1", "-1", "[Unknown]", 0, new ArrayList(0));
@@ -185,7 +185,7 @@ namespace IPlayerPlugin {
     }
 
     public string
-    Resolve(MediaMallTechnologies.Plugin.SharedMediaFileInfo fileInfo) {
+    Resolve(SharedMediaFileInfo fileInfo) {
       string type = fileInfo.Path.EndsWith(".wmv") ? "wmp" : "fp";
       string xml = "<media><url type=\"" + type + "\">" + fileInfo.Path + "</url></media>";
       return xml;
