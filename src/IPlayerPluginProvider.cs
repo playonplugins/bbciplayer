@@ -96,16 +96,13 @@ namespace IPlayerPlugin {
 
     private ArrayList
     getRange(ArrayList list, int startIndex, int requestCount) {
-      if (requestCount == 0)
+      if (requestCount == 0) {
         requestCount = int.MaxValue;
-      ArrayList items;
+      }
       if (startIndex > list.Count) {
-        items = new ArrayList(0);
+        return new ArrayList(0);
       }
-      else {
-        items = list.GetRange(startIndex, Math.Min(requestCount, list.Count - startIndex));
-      }
-      return items;
+      return list.GetRange(startIndex, Math.Min(requestCount, list.Count - startIndex));
     }
 
     public Payload
