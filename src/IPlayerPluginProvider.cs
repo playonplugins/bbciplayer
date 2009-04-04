@@ -14,6 +14,7 @@ namespace IPlayerPlugin {
     private Hashtable      titleLookup            = new Hashtable();
     private Hashtable      folderLookup           = new Hashtable();
     private int            dynamicFolderCacheTime = 300; // seconds
+    private StreamWriter   logWriter              = null;
 
     public
     IPlayerPluginProvider() {
@@ -74,7 +75,7 @@ namespace IPlayerPlugin {
           vf.AddMedia(info);
         }
       } catch (Exception ex) {
-        log("Error: " + ex);
+        Log("Error: " + ex);
       }
     }
 
@@ -181,7 +182,15 @@ namespace IPlayerPlugin {
     }
 
     private void
-    log(string message) {
+    Log(string message) {
+      // MediaMall logging is currently broken
+      try {
+        if (this.logWriter == null) {
+          logWriter = new StreamWriter(@"C:\\Program Files\\MediaMall\\log.txt", true);
+          logWriter.AutoFlush = true;
+        }
+        logWriter.WriteLine(message);
+      } catch (Exception) { }
       this.host.LogMessage(message);
     }
 
