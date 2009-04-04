@@ -1,17 +1,3 @@
-/*
- *  Copyright (c) 2003-2009 MediaMall Technologies, Inc.
- *  All rights reserved.
- * 
- *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
- *  EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- *  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
- *  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- *  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
- *  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- *  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- *  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 using System;
 using System.Collections;
 using System.Collections.Specialized;
@@ -28,25 +14,16 @@ namespace IPlayerPlugin {
     private Hashtable titleLookup = new Hashtable();
     private Hashtable folderLookup = new Hashtable();
 
-    /* ------------------------------------------------------------- */
-
-    public IPlayerPluginProvider() {
-
-      // create a root folder
+    public
+    IPlayerPluginProvider() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
-
-      // create a sub folder
       VirtualFolder subFolder = new VirtualFolder(createGuid(), "Sample Folder", "http://www.themediamall.com/downloads/playon/plugins/api/sample/sample.xml", true);
-
-      // add this folder and cache its ID for lookups
       this.rootFolder.AddFolder(subFolder);
       this.folderLookup[subFolder.Id] = subFolder;
     }
 
-    /* ------------------------------------------------------------- */
-
-    private void load(VirtualFolder vf) {
-
+    private void
+    load(VirtualFolder vf) {
       try {
         // reset this folder to clear potential stale content (relevant for dynamically loaded data)
         vf.Reset();
@@ -112,32 +89,23 @@ namespace IPlayerPlugin {
       }
     }
 
-    /* ------------------------------------------------------------- */
-
-    public string Name {
-      get {
-        return "BBC iPlayer";
-      }
+    public string
+    Name {
+      get { return "BBC iPlayer"; }
     }
 
-    /* ------------------------------------------------------------- */
-
-    public string ID {
-      get {
-        return this.Name.Replace(" ", "").ToLower();
-      }
+    public string
+    ID {
+      get { return this.Name.Replace(" ", "").ToLower(); }
     }
 
-    /* ------------------------------------------------------------- */
-
-    private string createGuid() {
+    private string
+    createGuid() {
       return this.ID + "-" + Guid.NewGuid();
     }
 
-    /* ------------------------------------------------------------- */
-
-    private ArrayList getRange(ArrayList list, int startIndex, int requestCount) {
-
+    private ArrayList
+    getRange(ArrayList list, int startIndex, int requestCount) {
       if (requestCount == 0)
         requestCount = int.MaxValue;
       ArrayList items;
@@ -150,10 +118,8 @@ namespace IPlayerPlugin {
       return items;
     }
 
-    /* ------------------------------------------------------------- */
-
-    public MediaMallTechnologies.Plugin.Payload GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
-
+    public MediaMallTechnologies.Plugin.Payload
+    GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
       if (id == null || id.Length == 0)
         return new Payload("-1", "-1", "[Unknown]", 0, new ArrayList(0));
 
@@ -205,9 +171,8 @@ namespace IPlayerPlugin {
       }
     }
 
-    /* ------------------------------------------------------------- */
-
-    public System.Drawing.Image Image {
+    public System.Drawing.Image
+    Image {
       get {
         System.Drawing.Image image = null;
         Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("Logo48x48.png");
@@ -219,23 +184,20 @@ namespace IPlayerPlugin {
       }
     }
 
-    /* ------------------------------------------------------------- */
-
-    public string Resolve(MediaMallTechnologies.Plugin.SharedMediaFileInfo fileInfo) {
+    public string
+    Resolve(MediaMallTechnologies.Plugin.SharedMediaFileInfo fileInfo) {
       string type = fileInfo.Path.EndsWith(".wmv") ? "wmp" : "fp";
       string xml = "<media><url type=\"" + type + "\">" + fileInfo.Path + "</url></media>";
       return xml;
     }
 
-    /* ------------------------------------------------------------- */
-
-    public void SetPlayOnHost(IPlayOnHost h) {
+    public void
+    SetPlayOnHost(IPlayOnHost h) {
       this.host = h;
     }
 
-    /* ------------------------------------------------------------- */
-
-    private void log(string message) {
+    private void
+    log(string message) {
       this.host.LogMessage(message);
     }
 
