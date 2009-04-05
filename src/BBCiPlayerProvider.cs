@@ -15,6 +15,7 @@ namespace BBCiPlayer {
     private Hashtable      folderLookup           = new Hashtable();
     private int            dynamicFolderCacheTime = 300; // seconds
     private StreamWriter   logWriter              = null;
+    private string         magicVPID              = "b00fz1d9";
 
     public
     BBCiPlayerProvider() {
@@ -24,6 +25,13 @@ namespace BBCiPlayer {
                           "Popular",
                           "http://feeds.bbc.co.uk/iplayer/popular/tv/list",
                           true);
+      this.rootFolder.AddFolder(subFolder);
+      this.folderLookup[subFolder.Id] = subFolder;
+
+      subFolder =
+        new VirtualFolder(createGuid(),
+                          "Hardcoded");
+      AddHardCodedTitle(subFolder);
       this.rootFolder.AddFolder(subFolder);
       this.folderLookup[subFolder.Id] = subFolder;
     }
@@ -80,6 +88,43 @@ namespace BBCiPlayer {
       } catch (Exception ex) {
         this.Log("Error: " + ex);
       }
+    }
+
+    private void
+    AddHardCodedTitle(VirtualFolder vf) {
+      string title = "HARDCODED";
+      string url = this.magicVPID;
+
+      NameValueCollection properties = new NameValueCollection();
+      properties["Description"] = "Try me out";
+
+      string guid = vf.FindGuid(url);
+      if (guid == null) guid = createGuid();
+
+      SharedOnlineMediaInfo info =
+        new SharedOnlineMediaInfo(guid, vf.Id, title, url, 2, properties, url);
+
+      this.titleLookup[info.Id] = info;
+      vf.AddMedia(info);
+    }
+
+    private string
+    StreamingURLForVPID(string vpid) {
+      string url = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/" + vpid;
+
+      XmlDocument doc = new XmlDocument();
+      doc.LoadXml(readFromURL(url));
+
+      XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
+      ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
+
+      XmlNode entry     = doc.SelectSingleNode("//bbc:media[@encoding='vp6']/bbc:connection", ns);
+      string server     = entry.Attributes["server"].Value;
+      string authString = entry.Attributes["authString"].Value;
+      string identifier = entry.Attributes["identifier"].Value;
+
+      return "rtmp://" + server + ":1935/ondemand?_fcs_vhost=" + server +
+             "&auth=" + authString + "&aifp=v001&slist=" + identifier;
     }
 
     public string
@@ -175,8 +220,9 @@ namespace BBCiPlayer {
     Resolve(SharedMediaFileInfo fileInfo) {
       this.Log("Resolve: " + fileInfo.Path);
       string type = "fp";
-      string xml = "<media><url type=\"" + type + "\">" + fileInfo.Path + "</url></media>";
-      return xml;
+      string url = StreamingURLForVPID(fileInfo.Path);
+      this.Log("Resolved to: " + url);
+      return "<media><url type=\"" + type + "\">" + url + "</url></media>";
     }
 
     public void
