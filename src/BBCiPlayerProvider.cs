@@ -222,7 +222,9 @@ namespace BBCiPlayer {
       string type = "fp";
       string url = StreamingURLForVPID(fileInfo.Path);
       this.Log("Resolved to: " + url);
-      return "<media><url type=\"" + type + "\">" + url + "</url></media>";
+      string xml = "<media><url type=\"" + type + "\">" + url + "</url></media>";
+      Log("Resolved XML: " + xml);
+      return xml;
     }
 
     public void
