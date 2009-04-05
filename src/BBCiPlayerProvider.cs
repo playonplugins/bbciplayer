@@ -232,14 +232,6 @@ namespace BBCiPlayer {
 
     private void
     Log(string message) {
-      // MediaMall logging is currently broken
-      try {
-        if (this.logWriter == null) {
-          logWriter = new StreamWriter(@"C:\\Program Files\\MediaMall\\log.txt", true);
-          logWriter.AutoFlush = true;
-        }
-        logWriter.WriteLine(message);
-      } catch (Exception) { }
       this.host.LogMessage(message);
     }
 
