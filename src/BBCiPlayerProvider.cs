@@ -124,7 +124,7 @@ namespace BBCiPlayer {
       string identifier = entry.Attributes["identifier"].Value;
 
       return "rtmp://" + server + ":1935/ondemand?_fcs_vhost=" + server +
-             "&auth=" + authString + "&aifp=v001&slist=" + identifier;
+             "&amp;auth=" + authString + "&amp;aifp=v001&amp;slist=" + identifier;
     }
 
     public string
