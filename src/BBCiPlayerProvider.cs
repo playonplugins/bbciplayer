@@ -14,7 +14,6 @@ namespace BBCiPlayer {
     private Hashtable      titleLookup            = new Hashtable();
     private Hashtable      folderLookup           = new Hashtable();
     private int            dynamicFolderCacheTime = 300; // seconds
-    private StreamWriter   logWriter              = null;
     private string         magicVPID              = "b00fz1d9";
 
     public
