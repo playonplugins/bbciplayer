@@ -1,7 +1,7 @@
 LIBRARIES = ["Util", "System.Drawing"]
 SOURCES   = FileList[File.join("src", "**", "*.cs")]
 RESOURCES = FileList[File.join("res", "**", "*.dll")]
-TARGET    = File.join("lib", "BBCiPlayer.plugin")
+TARGET    = "BBCiPlayer.plugin"
 
 file TARGET => SOURCES + RESOURCES do |t|
   system(*(
