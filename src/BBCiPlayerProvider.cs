@@ -63,23 +63,24 @@ namespace BBCiPlayer {
         foreach (XmlNode entry in doc.GetElementsByTagName("entry")) {
           string title =
             entry.SelectSingleNode("atom:title", atomNS).InnerText;
+          string description =
+            "";
           string url =
             entry.SelectSingleNode("atom:link[@rel='alternate']", atomNS).Attributes["href"].Value;
-
-          NameValueCollection properties = new NameValueCollection();
-          properties["Icon"] =
+          string thumbnail =
             entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
-          properties["Date"] =
+          DateTime date =
             DateTime.Parse(
               entry.SelectSingleNode("atom:updated", atomNS).InnerText,
-              System.Globalization.CultureInfo.InvariantCulture
-              ).ToString("s");
+              System.Globalization.CultureInfo.InvariantCulture);
+          long duration = 0;
 
           string guid = vf.FindGuid(url);
           if (guid == null) guid = createGuid();
 
-          SharedOnlineMediaInfo info =
-            new SharedOnlineMediaInfo(guid, vf.Id, title, url, 2, properties, url);
+          VideoResource info =
+            new VideoResource(guid, vf.Id, title, url, description, thumbnail, date, url, null,
+                              duration, 0, null, null);
 
           this.titleLookup[info.Id] = info;
           vf.AddMedia(info);
@@ -91,17 +92,19 @@ namespace BBCiPlayer {
 
     private void
     AddHardCodedTitle(VirtualFolder vf) {
-      string title = "HARDCODED";
-      string url = this.magicVPID;
-
-      NameValueCollection properties = new NameValueCollection();
-      properties["Description"] = "Try me out";
+      string   title       = "HARDCODED";
+      string   url         = this.magicVPID;
+      string   description = "Try me out";
+      string   thumbnail   = null;
+      DateTime date        = DateTime.MinValue;
+      long     duration    = 0;
 
       string guid = vf.FindGuid(url);
       if (guid == null) guid = createGuid();
 
-      SharedOnlineMediaInfo info =
-        new SharedOnlineMediaInfo(guid, vf.Id, title, url, 2, properties, url);
+      VideoResource info =
+        new VideoResource(guid, vf.Id, title, url, description, thumbnail, date, url, null,
+                          duration, 0, null, null);
 
       this.titleLookup[info.Id] = info;
       vf.AddMedia(info);
@@ -171,7 +174,7 @@ namespace BBCiPlayer {
       }
 
       if (titleLookup[id] != null) {
-        SharedOnlineMediaInfo fileInfo = (SharedOnlineMediaInfo)titleLookup[id];
+        SharedMediaFileInfo fileInfo = (SharedMediaFileInfo)titleLookup[id];
         currentList.Add(fileInfo);
         return new Payload(id, fileInfo.OwnerId, fileInfo.Title, 1, currentList, false);
       }
@@ -189,8 +192,8 @@ namespace BBCiPlayer {
             VirtualFolder subFolder = entry as VirtualFolder;
             currentList.Add(
               new SharedMediaFolderInfo(subFolder.Id, subFolder.Id, subFolder.Title, subFolder.Items.Count));
-          } else if (entry is SharedOnlineMediaInfo) {
-            SharedOnlineMediaInfo fileInfo = entry as SharedOnlineMediaInfo;
+          } else if (entry is SharedMediaFileInfo) {
+            SharedMediaFileInfo fileInfo = (SharedMediaFileInfo)entry;
             currentList.Add(fileInfo);
           }
         }
@@ -218,11 +221,25 @@ namespace BBCiPlayer {
     public string
     Resolve(SharedMediaFileInfo fileInfo) {
       this.Log("Resolve: " + fileInfo.Path);
+
       string type = "fp";
       string url = StreamingURLForVPID(fileInfo.Path);
       this.Log("Resolved to: " + url);
-      string xml = "<media><url type=\"" + type + "\">" + url + "</url></media>";
+
+      StringWriter sw = new StringWriter();
+      XmlTextWriter writer = new XmlTextWriter(sw);
+
+      writer.Formatting = Formatting.Indented;
+      writer.WriteStartElement("media");
+      writer.WriteStartElement("url");
+      writer.WriteAttributeString("type", type);
+      writer.WriteString(url);
+      writer.WriteEndElement();
+      writer.WriteEndElement();
+      writer.Close();
+      string xml = sw.ToString();
       Log("Resolved XML: " + xml);
+
       return xml;
     }
 

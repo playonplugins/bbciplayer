@@ -1,6 +1,7 @@
 namespace BBCiPlayer {
   using System;
   using System.Collections;
+  using MediaMallTechnologies.Plugin;
 
   public class VirtualFolder {
 
@@ -79,10 +80,10 @@ namespace BBCiPlayer {
     }
 
     public void
-    AddMedia(SharedOnlineMediaInfo info) {
+    AddMedia(SharedMediaFileInfo info) {
       this.items.Add(info);
       info.OwnerId = this.id;
-      this.lookup[info.OnlineIdentifier] = info.Id;
+      this.lookup[info.SourceId] = info.Id;
     }
 
     public void
@@ -96,8 +97,8 @@ namespace BBCiPlayer {
     }
 
     public string
-    FindGuid(string onlineIdentifier) {
-      return lookup[onlineIdentifier] as string;
+    FindGuid(string sourceId) {
+      return lookup[sourceId] as string;
     }
 
     public string

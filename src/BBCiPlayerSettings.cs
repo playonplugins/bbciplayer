@@ -5,6 +5,7 @@ namespace BBCiPlayer {
   using System.IO;
   using System.Net;
   using System.Reflection;
+  using System.Windows.Forms;
 
   public class BBCiPlayerSettings : MediaMallTechnologies.Plugin.IPlayOnProviderSettings {
 
@@ -43,6 +44,11 @@ namespace BBCiPlayer {
     }
 
     public bool
+    HasOptions {
+      get { return false; }
+    }
+
+    public bool
     TestLogin(string username, string password) {
       return true;
     }
@@ -52,8 +58,8 @@ namespace BBCiPlayer {
       return null;
     }
 
-    public NameValueCollection
-    ConfigureOptions() {
+    public System.Windows.Forms.Control
+    ConfigureOptions(NameValueCollection props) {
       return null;
     }
 
