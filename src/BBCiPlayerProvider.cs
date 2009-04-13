@@ -81,7 +81,8 @@ namespace BBCiPlayer {
           subFolder.ParentId = this.ID;
           currentList.Add(new SharedMediaFolderInfo(subFolder.Id, id, subFolder.Title, subFolder.Items.Count));
         }
-        return new Payload(id, "0", this.Name, currentList.Count, getRange(currentList, startIndex, requestCount));
+        return new Payload(id, "0", this.Name, currentList.Count,
+                           getRange(currentList, startIndex, requestCount));
       }
 
       if (titleLookup[id] != null) {
