@@ -50,6 +50,22 @@ namespace BBCiPlayer {
       get { return this.Name.Replace(" ", "").ToLower(); }
     }
 
+    public System.Drawing.Image
+    Image {
+      get {
+        System.Drawing.Image image = null;
+        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().
+                             GetManifestResourceStream("Logo48x48.png");
+        if (imageStream != null) {
+          image = System.Drawing.Image.FromStream(imageStream);
+          imageStream.Close();
+        }
+        return image;
+      }
+    }
+
+    ////
+
     public Payload
     GetSharedMedia(string id, bool includeChildren, int startIndex, int requestCount) {
       this.Log("GetSharedMedia");
@@ -97,20 +113,6 @@ namespace BBCiPlayer {
       }
 
       return new Payload("-1", "-1", "[Unknown Request]", 0, new ArrayList(0));
-    }
-
-    public System.Drawing.Image
-    Image {
-      get {
-        System.Drawing.Image image = null;
-        Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().
-                             GetManifestResourceStream("Logo48x48.png");
-        if (imageStream != null) {
-          image = System.Drawing.Image.FromStream(imageStream);
-          imageStream.Close();
-        }
-        return image;
-      }
     }
 
     public string

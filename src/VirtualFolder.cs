@@ -79,6 +79,20 @@ namespace BBCiPlayer {
       set { this.lastLoad = value; }
     }
 
+    public string
+    SourceURL {
+      get { return this.sourceUrl; }
+      set { this.sourceUrl = value; }
+    }
+
+    public bool
+    Dynamic {
+      get { return this.dynamic; }
+      set { this.dynamic = value; }
+    }
+
+    ////
+
     public void
     Reset() {
       this.items.Clear();
@@ -104,18 +118,6 @@ namespace BBCiPlayer {
     public string
     FindGuid(string sourceId) {
       return lookup[sourceId] as string;
-    }
-
-    public string
-    SourceURL {
-      get { return this.sourceUrl; }
-      set { this.sourceUrl = value; }
-    }
-
-    public bool
-    Dynamic {
-      get { return this.dynamic; }
-      set { this.dynamic = value; }
     }
   }
 }
