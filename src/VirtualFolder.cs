@@ -16,6 +16,8 @@ namespace BBCiPlayer {
     private string     identifier = null;
     private DateTime   lastLoad   = DateTime.MinValue;
 
+    ////
+
     public
     VirtualFolder(string id, string title)
       : this(id, title, "", false) {}
@@ -32,6 +34,8 @@ namespace BBCiPlayer {
       this.dynamic   = dynamic;
       this.parentId  = "-1";
     }
+
+    ////
 
     public string
     Title {
@@ -112,6 +116,5 @@ namespace BBCiPlayer {
       get { return this.dynamic; }
       set { this.dynamic = value; }
     }
-
   }
 }
