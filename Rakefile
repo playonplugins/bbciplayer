@@ -1,5 +1,5 @@
 LIBRARIES = ["Util", "System.Drawing", "System.Windows.Forms"]
-SOURCES   = FileList[File.join("src", "**", "*.cs")]
+SOURCES   = FileList[File.join("{src,test}", "**", "*.cs")]
 RESOURCES = FileList[File.join("res", "**", "*.dll")]
 TARGET    = "BBCiPlayer.plugin"
 
