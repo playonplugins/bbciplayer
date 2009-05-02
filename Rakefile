@@ -25,8 +25,7 @@ end
 desc "Run tests"
 task :test => "test.dll" do |t|
   ENV['MONO_PATH'] = "lib"
-  system(
-    "nunit-console", "test.dll")
+  system("nunit-console", "test.dll")
 end
 
 desc "Run plugin in debugger"
