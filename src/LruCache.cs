@@ -9,6 +9,7 @@ public class LruCache {
   private List<object>  recentKeys     = new List<object>();
   private Hashtable     recentKeyIndex = new Hashtable();
   private int           maxSize;
+  private object        localLock      = new object();
 
   public
   LruCache(int maxSize) {
@@ -17,18 +18,22 @@ public class LruCache {
 
   public void
   Set(object key, object val) {
-    Touch(key);
-    data[key] = val;
-    DeleteOldestIfNeeded();
+    lock(localLock) {
+      Touch(key);
+      data[key] = val;
+      DeleteOldestIfNeeded();
+    }
   }
 
   public object
   Get(object key) {
-    object val = data[key];
-    if (val != null) {
-      Touch(key);
+    lock(localLock) {
+      object val = data[key];
+      if (val != null) {
+        Touch(key);
+      }
+      return val;
     }
-    return val;
   }
 
   private void
