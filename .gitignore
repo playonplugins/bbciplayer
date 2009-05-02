@@ -1,1 +1,6 @@
 *.plugin
+/test.dll
+*NUnitPrimaryTrace.txt
+/TestResult.xml
+/lib/nunit*.dll
+*.patch
