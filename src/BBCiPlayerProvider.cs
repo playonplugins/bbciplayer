@@ -1,4 +1,4 @@
-namespace BBCiPlayer {
+namespace Beeb {
 
   using System;
   using System.Collections;
