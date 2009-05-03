@@ -6,36 +6,25 @@ namespace Beeb {
   using System.IO;
   using System.Net;
   using System.Xml;
+  using System.Text.RegularExpressions;
   using MediaMallTechnologies.Plugin;
 
   public class BBCiPlayerProvider : IPlayOnProvider {
 
-    private IPlayOnHost    host;
-    private VirtualFolder  rootFolder;
-    private Hashtable      titleLookup            = new Hashtable();
-    private Hashtable      folderLookup           = new Hashtable();
-    private int            dynamicFolderCacheTime = 300; // seconds
-    private string         magicVPID              = "b0010bg0";
+    private IPlayOnHost        host;
+    private VirtualFolder      rootFolder;
+    private Hashtable          titleLookup            = new Hashtable();
+    private Hashtable          folderLookup           = new Hashtable();
+    private int                dynamicFolderCacheTime = 300; // seconds
+    private ProgrammeDatabase  progDB;
 
     ////
 
     public
     BBCiPlayerProvider() {
+      this.progDB = new ProgrammeDatabase();
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
-      VirtualFolder subFolder =
-        new VirtualFolder(createGuid(),
-                          "Popular",
-                          "http://feeds.bbc.co.uk/iplayer/popular/tv/list",
-                          true);
-      this.rootFolder.AddFolder(subFolder);
-      this.folderLookup[subFolder.Id] = subFolder;
-
-      subFolder =
-        new VirtualFolder(createGuid(),
-                          "Hardcoded");
-      AddHardCodedTitle(subFolder);
-      this.rootFolder.AddFolder(subFolder);
-      this.folderLookup[subFolder.Id] = subFolder;
+      AddFolderFromFeed("Popular", "http://feeds.bbc.co.uk/iplayer/popular/tv/list");
     }
 
     ////
@@ -82,7 +71,7 @@ namespace Beeb {
           currentList.Add(new SharedMediaFolderInfo(subFolder.Id, id, subFolder.Title, subFolder.Items.Count));
         }
         return new Payload(id, "0", this.Name, currentList.Count,
-                           getRange(currentList, startIndex, requestCount));
+                           GetRange(currentList, startIndex, requestCount));
       }
 
       if (titleLookup[id] != null) {
@@ -95,7 +84,7 @@ namespace Beeb {
         VirtualFolder folder = (VirtualFolder)folderLookup[id];
 
         if (folder.Dynamic && (DateTime.Now - folder.LastLoad).TotalSeconds > this.dynamicFolderCacheTime) {
-          loadDynamicFolder(folder);
+          LoadDynamicFolder(folder);
           folder.LastLoad = DateTime.Now;
         }
 
@@ -110,7 +99,7 @@ namespace Beeb {
           }
         }
         return new Payload(id, folder.ParentId, folder.Title, currentList.Count,
-                           getRange(currentList, startIndex, requestCount));
+                           GetRange(currentList, startIndex, requestCount));
       }
 
       return new Payload("-1", "-1", "[Unknown Request]", 0, new ArrayList(0));
@@ -121,7 +110,7 @@ namespace Beeb {
       this.Log("Resolve: " + fileInfo.Path);
 
       string type = "fp";
-      string url = StreamingURLForVPID(fileInfo.Path);
+      string url = progDB.VpidToStreamingUrl(fileInfo.SourceId);
       this.Log("Resolved to: " + url);
 
       StringWriter sw = new StringWriter();
@@ -149,8 +138,8 @@ namespace Beeb {
     ////
 
     private string
-    readFromURL(string url) {
-      this.Log("readFromURL: "+url);
+    ReadFromURL(string url) {
+      this.Log("ReadFromURL: "+url);
 
       HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
       StreamReader sr    = new StreamReader(req.GetResponse().GetResponseStream());
@@ -160,14 +149,21 @@ namespace Beeb {
     }
 
     private void
-    loadDynamicFolder(VirtualFolder vf) {
-      this.Log("loadDynamicFolder: "+vf.SourceURL);
+    AddFolderFromFeed(string name, string url) {
+      VirtualFolder subFolder = new VirtualFolder(CreateGuid(), name, url, true);
+      this.rootFolder.AddFolder(subFolder);
+      this.folderLookup[subFolder.Id] = subFolder;
+    }
+
+    private void
+    LoadDynamicFolder(VirtualFolder vf) {
+      this.Log("LoadDynamicFolder: "+vf.SourceURL);
 
       try {
         vf.Reset(); // Remove existing items
 
         XmlDocument doc = new XmlDocument();
-        doc.LoadXml(readFromURL(vf.SourceURL));
+        doc.LoadXml(ReadFromURL(vf.SourceURL));
 
         XmlNamespaceManager atomNS = new XmlNamespaceManager(doc.NameTable);
         atomNS.AddNamespace("atom", "http://www.w3.org/2005/Atom");
@@ -186,13 +182,17 @@ namespace Beeb {
             DateTime.Parse(
               entry.SelectSingleNode("atom:updated", atomNS).InnerText,
               System.Globalization.CultureInfo.InvariantCulture);
-          long duration = 0;
+          string pid = Regex.Match(url, @"/iplayer/episode/([a-z0-9]{8})").Groups[1].Value;
+          Log("Looking up PID "+pid);
+          ProgrammeItem prog = progDB.ProgrammeInformation(pid);
+          string vpid = prog.Vpid;
+          long duration = prog.Duration * 1000; // PlayOn uses msec
 
-          string guid = vf.FindGuid(url);
-          if (guid == null) guid = createGuid();
+          string guid = vf.FindGuid(vpid);
+          if (guid == null) guid = CreateGuid();
 
           VideoResource info =
-            new VideoResource(guid, vf.Id, title, url, description, thumbnail, date, url, null,
+            new VideoResource(guid, vf.Id, title, vpid, description, thumbnail, date, vpid, null,
                               duration, 0, null, null);
 
           this.titleLookup[info.Id] = info;
@@ -203,53 +203,13 @@ namespace Beeb {
       }
     }
 
-    private void
-    AddHardCodedTitle(VirtualFolder vf) {
-      string   title       = "HARDCODED";
-      string   url         = this.magicVPID;
-      string   description = "Try me out";
-      string   thumbnail   = null;
-      DateTime date        = DateTime.MinValue;
-      long     duration    = 0;
-
-      string guid = vf.FindGuid(url);
-      if (guid == null) guid = createGuid();
-
-      VideoResource info =
-        new VideoResource(guid, vf.Id, title, url, description, thumbnail, date, url, null,
-                          duration, 0, null, null);
-
-      this.titleLookup[info.Id] = info;
-      vf.AddMedia(info);
-    }
-
     private string
-    StreamingURLForVPID(string vpid) {
-      string url = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/" + vpid;
-
-      XmlDocument doc = new XmlDocument();
-      doc.LoadXml(readFromURL(url));
-
-      XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
-      ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
-
-      XmlNode entry     = doc.SelectSingleNode("//bbc:media[@encoding='vp6']/bbc:connection", ns);
-      string server     = entry.Attributes["server"].Value;
-      string authString = entry.Attributes["authString"].Value;
-      string identifier = entry.Attributes["identifier"].Value;
-
-      return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
-             "&auth=" + authString + "&aifp=v001&slist=" + identifier + "|" +
-             "<rtmpMedia version=\"1.0\"><mediaPath>" + identifier + "</mediaPath></rtmpMedia>";
-    }
-
-    private string
-    createGuid() {
+    CreateGuid() {
       return this.ID + "-" + Guid.NewGuid();
     }
 
     private ArrayList
-    getRange(ArrayList list, int startIndex, int requestCount) {
+    GetRange(ArrayList list, int startIndex, int requestCount) {
       if (requestCount == 0) {
         requestCount = int.MaxValue;
       }
