@@ -21,26 +21,6 @@ namespace Beeb {
 
     ////
 
-    public
-    BBCiPlayerProvider() {
-      this.progDB = new ProgrammeDatabase();
-      this.rootFolder = new VirtualFolder(this.ID, this.Name);
-
-      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
-      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
-
-      AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
-      AddChannelFolder(rootFolder, "BBC Two",          "bbc_three");
-      AddChannelFolder(rootFolder, "BBC Three",        "bbc_four");
-      AddChannelFolder(rootFolder, "CBBC",             "cbbc");
-      AddChannelFolder(rootFolder, "CBeebies",         "cbeebies");
-      AddChannelFolder(rootFolder, "BBC News Channel", "bbc_news24");
-      AddChannelFolder(rootFolder, "BBC Parliament",   "bbc_parliament");
-      AddChannelFolder(rootFolder, "BBC Alba",         "bbc_alba");
-    }
-
-    ////
-
     public string
     Name {
       get { return "BBC iPlayer"; }
@@ -145,9 +125,28 @@ namespace Beeb {
     public void
     SetPlayOnHost(IPlayOnHost h) {
       this.host = h;
+      this.progDB = new ProgrammeDatabase();
+      AddFolders();
     }
 
     ////
+
+    private void
+    AddFolders() {
+      this.rootFolder = new VirtualFolder(this.ID, this.Name);
+
+      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
+      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
+
+      AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
+      AddChannelFolder(rootFolder, "BBC Two",          "bbc_three");
+      AddChannelFolder(rootFolder, "BBC Three",        "bbc_four");
+      AddChannelFolder(rootFolder, "CBBC",             "cbbc");
+      AddChannelFolder(rootFolder, "CBeebies",         "cbeebies");
+      AddChannelFolder(rootFolder, "BBC News Channel", "bbc_news24");
+      AddChannelFolder(rootFolder, "BBC Parliament",   "bbc_parliament");
+      AddChannelFolder(rootFolder, "BBC Alba",         "bbc_alba");
+    }
 
     private void
     AddFolderFromFeed(VirtualFolder parent, string name, string url) {
