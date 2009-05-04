@@ -2,7 +2,7 @@ LIBRARIES = ["Util", "System.Drawing", "System.Windows.Forms"]
 TEST_DLLS = FileList[File.join("lib", "nunit.*.dll")]
 SOURCES   = FileList[File.join("src", "**", "*.cs")]
 TESTS     = FileList[File.join("test", "**", "*.cs")]
-RESOURCES = FileList[File.join("res", "**", "*.dll")]
+RESOURCES = FileList[File.join("res", "**", "*")]
 TARGET    = "BBCiPlayer.plugin"
 
 file TARGET => SOURCES + RESOURCES do |t|
@@ -17,6 +17,7 @@ file "test.dll" => SOURCES + TESTS + RESOURCES do |t|
   system(*(
     ["gmcs", "-lib:lib", "-t:library", "-out:#{t.name}"] +
     LIBRARIES.map{ |a| "-r:#{a}.dll" } +
+    RESOURCES.map{ |a| "-resource:#{a}" } +
     TEST_DLLS.map{ |a| "-r:#{a}" } +
     SOURCES +
     TESTS ))
