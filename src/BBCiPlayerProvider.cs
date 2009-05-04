@@ -36,7 +36,7 @@ namespace Beeb {
       get {
         System.Drawing.Image image = null;
         Stream imageStream = System.Reflection.Assembly.GetExecutingAssembly().
-                             GetManifestResourceStream("Logo48x48.png");
+                             GetManifestResourceStream("Logo78x78.png");
         if (imageStream != null) {
           image = System.Drawing.Image.FromStream(imageStream);
           imageStream.Close();
