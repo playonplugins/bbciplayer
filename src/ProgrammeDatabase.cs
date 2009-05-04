@@ -7,7 +7,6 @@ namespace Beeb {
 
   public class ProgrammeDatabase {
 
-    private LruCache vpidToStreamingUrlCache   = new LruCache(200);
     private LruCache programmeInformationCache = new LruCache(200);
 
     ////
@@ -31,14 +30,7 @@ namespace Beeb {
 
     public string
     VpidToStreamingUrl(string vpid) {
-      string streamingUrl = (string)this.vpidToStreamingUrlCache.Get(vpid);
-
-      if (streamingUrl == null) {
-        streamingUrl = RemoteLookUpStreamingUrl(vpid);
-        this.vpidToStreamingUrlCache.Set(vpid, streamingUrl);
-      }
-
-      return streamingUrl;
+      return RemoteLookUpStreamingUrl(vpid);
     }
 
     ////
