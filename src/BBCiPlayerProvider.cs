@@ -25,8 +25,17 @@ namespace Beeb {
     BBCiPlayerProvider() {
       this.progDB = new ProgrammeDatabase();
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
-      AddFolderFromFeed(this.rootFolder, "Popular", feedRoot + "popular/tv/list");
-      AddChannelFolder(this.rootFolder, "BBC One", "bbc_one");
+
+      AddFolderFromFeed(rootFolder, "Popular", feedRoot + "popular/tv/list");
+
+      AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
+      AddChannelFolder(rootFolder, "BBC Two",          "bbc_three");
+      AddChannelFolder(rootFolder, "BBC Three",        "bbc_four");
+      AddChannelFolder(rootFolder, "CBBC",             "cbbc");
+      AddChannelFolder(rootFolder, "CBeebies",         "cbeebies");
+      AddChannelFolder(rootFolder, "BBC News Channel", "bbc_news24");
+      AddChannelFolder(rootFolder, "BBC Parliament",   "bbc_parliament");
+      AddChannelFolder(rootFolder, "BBC Alba",         "bbc_alba");
     }
 
     ////
