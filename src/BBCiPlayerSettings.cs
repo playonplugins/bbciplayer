@@ -36,7 +36,7 @@ namespace Beeb {
 
     public string
     Description {
-      get { return "Watch and listen to BBC programmes."; }
+      get { return "Watch BBC programmes."; }
     }
 
     public bool

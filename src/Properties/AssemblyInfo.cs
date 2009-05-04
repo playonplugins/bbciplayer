@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("BBC iPlayer")]
-[assembly: AssemblyDescription("Watch and listen to BBC programmes")]
+[assembly: AssemblyDescription("Watch BBC programmes")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Black Helicopter Enterprises")]
 [assembly: AssemblyProduct("BBC iPlayer Plugin")]
