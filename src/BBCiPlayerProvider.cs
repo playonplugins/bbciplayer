@@ -137,17 +137,6 @@ namespace Beeb {
 
     ////
 
-    private string
-    ReadFromURL(string url) {
-      this.Log("ReadFromURL: "+url);
-
-      HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-      StreamReader sr    = new StreamReader(req.GetResponse().GetResponseStream());
-      string content     = sr.ReadToEnd();
-      sr.Close();
-      return content;
-    }
-
     private void
     AddFolderFromFeed(string name, string url) {
       VirtualFolder subFolder = new VirtualFolder(CreateGuid(), name, url, true);
@@ -163,7 +152,7 @@ namespace Beeb {
         vf.Reset(); // Remove existing items
 
         XmlDocument doc = new XmlDocument();
-        doc.LoadXml(ReadFromURL(vf.SourceURL));
+        doc.LoadXml(Beeb.Util.ReadFromUrl(vf.SourceURL));
 
         XmlNamespaceManager atomNS = new XmlNamespaceManager(doc.NameTable);
         atomNS.AddNamespace("atom", "http://www.w3.org/2005/Atom");

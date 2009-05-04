@@ -2,7 +2,6 @@ namespace Beeb {
 
   using System;
   using System.IO;
-  using System.Net;
   using System.Xml;
 
   public class ProgrammeDatabase {
@@ -36,19 +35,10 @@ namespace Beeb {
     ////
 
     private string
-    ReadFromUrl(string url) {
-      HttpWebRequest req = (HttpWebRequest)HttpWebRequest.Create(url);
-      StreamReader sr    = new StreamReader(req.GetResponse().GetResponseStream());
-      string content     = sr.ReadToEnd();
-      sr.Close();
-      return content;
-    }
-
-    private string
     RemoteLookUpStreamingUrl(string vpid) {
       XmlDocument doc = new XmlDocument();
       string mediaSelectorUrl = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/" + vpid;
-      doc.LoadXml(ReadFromUrl(mediaSelectorUrl));
+      doc.LoadXml(Beeb.Util.ReadFromUrl(mediaSelectorUrl));
 
       XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
       ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
@@ -70,7 +60,7 @@ namespace Beeb {
       string playlistUrl = "http://www.bbc.co.uk/iplayer/playlist/" + pid;
 
       XmlDocument doc = new XmlDocument();
-      doc.LoadXml(ReadFromUrl(playlistUrl));
+      doc.LoadXml(Beeb.Util.ReadFromUrl(playlistUrl));
 
       XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
       ns.AddNamespace("pl", "http://bbc.co.uk/2008/emp/playlist");
