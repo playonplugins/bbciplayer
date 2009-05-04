@@ -17,6 +17,7 @@ namespace Beeb {
     private Hashtable          folderLookup           = new Hashtable();
     private int                dynamicFolderCacheTime = 300; // seconds
     private ProgrammeDatabase  progDB;
+    private string             feedRoot               = "http://feeds.bbc.co.uk/iplayer/";
 
     ////
 
@@ -24,7 +25,8 @@ namespace Beeb {
     BBCiPlayerProvider() {
       this.progDB = new ProgrammeDatabase();
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
-      AddFolderFromFeed("Popular", "http://feeds.bbc.co.uk/iplayer/popular/tv/list");
+      AddFolderFromFeed(this.rootFolder, "Popular", feedRoot + "popular/tv/list");
+      AddChannelFolder(this.rootFolder, "BBC One", "bbc_one");
     }
 
     ////
@@ -138,10 +140,20 @@ namespace Beeb {
     ////
 
     private void
-    AddFolderFromFeed(string name, string url) {
+    AddFolderFromFeed(VirtualFolder parent, string name, string url) {
       VirtualFolder subFolder = new VirtualFolder(CreateGuid(), name, url, true);
-      this.rootFolder.AddFolder(subFolder);
+      parent.AddFolder(subFolder);
       this.folderLookup[subFolder.Id] = subFolder;
+    }
+
+    private void
+    AddChannelFolder(VirtualFolder parent, string name, string slug) {
+      VirtualFolder channelFolder = new VirtualFolder(CreateGuid(), name);
+      parent.AddFolder(channelFolder);
+      this.folderLookup[channelFolder.Id] = channelFolder;
+      AddFolderFromFeed(channelFolder, name + " programmes",   feedRoot + slug + "/list");
+      AddFolderFromFeed(channelFolder, name + " highlights",   feedRoot + slug + "/highlights");
+      AddFolderFromFeed(channelFolder, name + " most popular", feedRoot + slug + "/popular");
     }
 
     private void
