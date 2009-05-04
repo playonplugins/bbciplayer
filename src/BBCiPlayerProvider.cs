@@ -26,7 +26,8 @@ namespace Beeb {
       this.progDB = new ProgrammeDatabase();
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
 
-      AddFolderFromFeed(rootFolder, "Popular", feedRoot + "popular/tv/list");
+      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
+      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
 
       AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
       AddChannelFolder(rootFolder, "BBC Two",          "bbc_three");
