@@ -6,7 +6,6 @@ namespace Beeb {
   using System.IO;
   using System.Net;
   using System.Xml;
-  using System.Text.RegularExpressions;
   using MediaMallTechnologies.Plugin;
 
   public class BBCiPlayerProvider : IPlayOnProvider {
@@ -171,38 +170,13 @@ namespace Beeb {
       try {
         vf.Reset(); // Remove existing items
 
-        XmlDocument doc = new XmlDocument();
-        doc.LoadXml(Beeb.Util.ReadFromUrl(vf.SourceURL));
-
-        XmlNamespaceManager atomNS = new XmlNamespaceManager(doc.NameTable);
-        atomNS.AddNamespace("atom", "http://www.w3.org/2005/Atom");
-        atomNS.AddNamespace("media", "http://search.yahoo.com/mrss/");
-
-        foreach (XmlNode entry in doc.GetElementsByTagName("entry")) {
-          string title =
-            entry.SelectSingleNode("atom:title", atomNS).InnerText;
-          string description =
-            "";
-          string url =
-            entry.SelectSingleNode("atom:link[@rel='alternate']", atomNS).Attributes["href"].Value;
-          string thumbnail =
-            entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
-          DateTime date =
-            DateTime.Parse(
-              entry.SelectSingleNode("atom:updated", atomNS).InnerText,
-              System.Globalization.CultureInfo.InvariantCulture);
-          string pid = Regex.Match(url, @"/iplayer/episode/([a-z0-9]{8})").Groups[1].Value;
-          Log("Looking up PID "+pid);
-          ProgrammeItem prog = progDB.ProgrammeInformation(pid);
-          string vpid = prog.Vpid;
-          long duration = prog.Duration * 1000; // PlayOn uses msec
-
-          string guid = vf.FindGuid(vpid);
+        foreach (ProgrammeItem prog in progDB.ProgrammesFromFeed(vf.SourceURL)) {
+          string guid = vf.FindGuid(prog.Vpid);
           if (guid == null) guid = CreateGuid();
 
           VideoResource info =
-            new VideoResource(guid, vf.Id, title, vpid, description, thumbnail, date, vpid, null,
-                              duration, 0, null, null);
+            new VideoResource(guid, vf.Id, prog.Title, prog.Vpid, prog.Description, prog.Thumbnail, prog.Date, prog.Vpid, null,
+                              prog.Duration * 1000 /* PlayOn wants ms */, 0, null, null);
 
           this.titleLookup[info.Id] = info;
           vf.AddMedia(info);

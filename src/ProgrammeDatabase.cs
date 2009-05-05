@@ -3,6 +3,8 @@ namespace Beeb {
   using System;
   using System.IO;
   using System.Xml;
+  using System.Collections.Generic;
+  using System.Text.RegularExpressions;
 
   public class ProgrammeDatabase {
 
@@ -10,21 +12,33 @@ namespace Beeb {
 
     ////
 
-    public ProgrammeItem
-    ProgrammeInformation(string pid) {
-      ProgrammeItem programmeItem = (ProgrammeItem)this.programmeInformationCache.Get(pid);
-
-      if (programmeItem == null) {
-        programmeItem = RemoteLookUpProgrammeItem(pid);
-        this.programmeInformationCache.Set(pid, programmeItem);
-      }
-
-      return programmeItem;
-    }
-
     public string
     VpidToStreamingUrl(string vpid) {
       return RemoteLookUpStreamingUrl(vpid);
+    }
+
+    public List<ProgrammeItem>
+    ProgrammesFromFeed(string feedUrl) {
+      List<ProgrammeItem> items = new List<ProgrammeItem>();
+
+      XmlDocument doc = new XmlDocument();
+      doc.LoadXml(Beeb.Util.ReadFromUrl(feedUrl));
+
+      XmlNamespaceManager atomNS = new XmlNamespaceManager(doc.NameTable);
+      atomNS.AddNamespace("atom", "http://www.w3.org/2005/Atom");
+      atomNS.AddNamespace("media", "http://search.yahoo.com/mrss/");
+
+      foreach (XmlNode entry in doc.GetElementsByTagName("entry")) {
+        string url       = entry.SelectSingleNode("atom:link[@rel='alternate']", atomNS).Attributes["href"].Value;
+        string pid       = Regex.Match(url, @"/iplayer/episode/([a-z0-9]{8})").Groups[1].Value;
+
+        ProgrammeItem prog = ProgrammeInformation(pid);
+        prog.Thumbnail = entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
+
+        items.Add(prog);
+      }
+
+      return items;
     }
 
     ////
@@ -51,7 +65,21 @@ namespace Beeb {
     }
 
     private ProgrammeItem
+    ProgrammeInformation(string pid) {
+      ProgrammeItem programmeItem = (ProgrammeItem)this.programmeInformationCache.Get(pid);
+
+      if (programmeItem == null) {
+        programmeItem = RemoteLookUpProgrammeItem(pid);
+        this.programmeInformationCache.Set(pid, programmeItem);
+      }
+
+      return programmeItem;
+    }
+
+    private ProgrammeItem
     RemoteLookUpProgrammeItem(string pid) {
+      ProgrammeItem prog = new ProgrammeItem();
+
       string playlistUrl = "http://www.bbc.co.uk/iplayer/playlist/" + pid;
 
       XmlDocument doc = new XmlDocument();
@@ -63,10 +91,15 @@ namespace Beeb {
       XmlNode item = doc.SelectSingleNode("//pl:item[@kind='programme'][descendant::pl:alternate[@id='default']]", ns);
       if (item == null) return null;
 
-      string duration   = item.Attributes["duration"].Value;
-      string identifier = item.Attributes["identifier"].Value;
+      prog.Title       = doc.SelectSingleNode("pl:playlist/pl:title", ns).InnerText;
+      prog.Description = doc.SelectSingleNode("pl:playlist/pl:summary", ns).InnerText;
+      prog.Date  = DateTime.Parse( doc.SelectSingleNode("pl:playlist/pl:updated", ns).InnerText,
+                                      System.Globalization.CultureInfo.InvariantCulture );
 
-      return new ProgrammeItem(identifier, System.Int64.Parse(duration));
+      prog.Duration = System.Int64.Parse(item.Attributes["duration"].Value);
+      prog.Vpid     = item.Attributes["identifier"].Value;
+
+      return prog;
     }
   }
 }
