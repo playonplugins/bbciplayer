@@ -159,6 +159,7 @@ namespace Beeb {
       VirtualFolder channelFolder = new VirtualFolder(CreateGuid(), name);
       parent.AddFolder(channelFolder);
       this.folderLookup[channelFolder.Id] = channelFolder;
+      AddFolderFromFeed(channelFolder, name + " programmes",   feedRoot + slug + "/list");
       AddFolderFromFeed(channelFolder, name + " highlights",   feedRoot + slug + "/highlights");
       AddFolderFromFeed(channelFolder, name + " most popular", feedRoot + slug + "/popular");
     }
