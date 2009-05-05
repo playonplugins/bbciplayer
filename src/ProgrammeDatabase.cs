@@ -49,6 +49,8 @@ namespace Beeb {
         string pid       = Regex.Match(url, @"/iplayer/episode/([a-z0-9]{8})").Groups[1].Value;
 
         ProgrammeItem prog = ProgrammeInformation(pid);
+
+        // The thumbnail is the only piece of information we can't delegate to the playlist:
         prog.Thumbnail = entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
 
         items.Add(prog);
