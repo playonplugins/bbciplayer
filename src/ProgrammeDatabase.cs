@@ -10,11 +10,6 @@ namespace Beeb {
 
     ////
 
-    public
-    ProgrammeDatabase() {}
-
-    ////
-
     public ProgrammeItem
     ProgrammeInformation(string pid) {
       ProgrammeItem programmeItem = (ProgrammeItem)this.programmeInformationCache.Get(pid);
