@@ -14,7 +14,23 @@ namespace Beeb {
 
     public string
     VpidToStreamingUrl(string vpid) {
-      return RemoteLookUpStreamingUrl(vpid);
+      XmlDocument doc = new XmlDocument();
+      string mediaSelectorUrl = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/" + vpid;
+      doc.LoadXml(Beeb.Util.ReadFromUrl(mediaSelectorUrl));
+
+      XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
+      ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
+
+      XmlNode entry     = doc.SelectSingleNode("//bbc:media[@encoding='vp6']/bbc:connection", ns);
+      if (entry == null) return null;
+
+      string server     = entry.Attributes["server"].Value;
+      string authString = entry.Attributes["authString"].Value;
+      string identifier = entry.Attributes["identifier"].Value;
+
+      return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
+             "&auth=" + authString + "&aifp=v001&slist=" + identifier + "|" +
+             "<rtmpMedia version=\"1.0\"><mediaPath>" + identifier + "</mediaPath></rtmpMedia>";
     }
 
     public List<ProgrammeItem>
@@ -42,27 +58,6 @@ namespace Beeb {
     }
 
     ////
-
-    private string
-    RemoteLookUpStreamingUrl(string vpid) {
-      XmlDocument doc = new XmlDocument();
-      string mediaSelectorUrl = "http://www.bbc.co.uk/mediaselector/4/mtis/stream/" + vpid;
-      doc.LoadXml(Beeb.Util.ReadFromUrl(mediaSelectorUrl));
-
-      XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
-      ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
-
-      XmlNode entry     = doc.SelectSingleNode("//bbc:media[@encoding='vp6']/bbc:connection", ns);
-      if (entry == null) return null;
-
-      string server     = entry.Attributes["server"].Value;
-      string authString = entry.Attributes["authString"].Value;
-      string identifier = entry.Attributes["identifier"].Value;
-
-      return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
-             "&auth=" + authString + "&aifp=v001&slist=" + identifier + "|" +
-             "<rtmpMedia version=\"1.0\"><mediaPath>" + identifier + "</mediaPath></rtmpMedia>";
-    }
 
     private ProgrammeItem
     ProgrammeInformation(string pid) {
