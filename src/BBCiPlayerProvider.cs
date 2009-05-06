@@ -166,12 +166,12 @@ namespace Beeb {
 
     private void
     LoadDynamicFolder(VirtualFolder vf) {
-      this.Log("LoadDynamicFolder: "+vf.SourceURL);
+      this.Log("LoadDynamicFolder: "+vf.SourceUrl);
 
       try {
         vf.Reset(); // Remove existing items
 
-        foreach (ProgrammeItem prog in progDB.ProgrammesFromFeed(vf.SourceURL)) {
+        foreach (ProgrammeItem prog in progDB.ProgrammesFromFeed(vf.SourceUrl)) {
           string guid = vf.FindGuid(prog.Vpid);
           if (guid == null) guid = CreateGuid();
 
