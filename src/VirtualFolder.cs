@@ -6,17 +6,18 @@ namespace Beeb {
 
   public class VirtualFolder {
 
-    public string     Title;
-    public string     Id;
-    public string     ParentId;
-    public string     Filter;
-    public string     Identifier = null;
-    public DateTime   LastLoad   = DateTime.MinValue;
-    public string     SourceUrl;
-    public bool       Dynamic    = false;
+    public string    Title;
+    public string    Id;
+    public string    ParentId;
+    public string    Filter;
+    public string    SourceUrl;
+    public string    Identifier = null;
+    public DateTime  LastLoad   = DateTime.MinValue;
+    public bool      Dynamic    = false;
 
-    private ArrayList  items      = new ArrayList();
-    private Hashtable  lookup     = new Hashtable();
+    public readonly ArrayList Items = new ArrayList();
+
+    private Hashtable lookup = new Hashtable();
 
     ////
 
@@ -39,28 +40,21 @@ namespace Beeb {
 
     ////
 
-    public ArrayList
-    Items {
-      get { return this.items; }
-    }
-
-    ////
-
     public void
     Reset() {
-      this.items.Clear();
+      this.Items.Clear();
     }
 
     public void
     AddMedia(SharedMediaFileInfo info) {
-      this.items.Add(info);
+      this.Items.Add(info);
       info.OwnerId = this.Id;
       this.lookup[info.SourceId] = info.Id;
     }
 
     public void
     AddFolder(VirtualFolder folder) {
-      this.items.Add(folder);
+      this.Items.Add(folder);
       folder.ParentId = this.Id;
       if (folder.Filter == null || folder.Filter.Length == 0)
         folder.Filter = this.Filter;
