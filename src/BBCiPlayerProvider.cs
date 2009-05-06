@@ -59,7 +59,8 @@ namespace Beeb {
       if (id == this.ID) { // root
         foreach (VirtualFolder subFolder in this.rootFolder.Items) {
           subFolder.ParentId = this.ID;
-          currentList.Add(new SharedMediaFolderInfo(subFolder.Id, id, subFolder.Title, subFolder.Items.Count));
+          currentList.Add(new SharedMediaFolderInfo(subFolder.Id, id, subFolder.Title, subFolder.Items.Count,
+                                                    subFolder.Thumbnail, default(NameValueCollection)));
         }
         return new Payload(id, "0", this.Name, currentList.Count,
                            GetRange(currentList, startIndex, requestCount));
@@ -83,7 +84,8 @@ namespace Beeb {
           if (entry is VirtualFolder) {
             VirtualFolder subFolder = entry as VirtualFolder;
             currentList.Add(
-              new SharedMediaFolderInfo(subFolder.Id, subFolder.Id, subFolder.Title, subFolder.Items.Count));
+              new SharedMediaFolderInfo(subFolder.Id, subFolder.Id, subFolder.Title, subFolder.Items.Count,
+                                        subFolder.Thumbnail, default(NameValueCollection)));
           } else if (entry is SharedMediaFileInfo) {
             SharedMediaFileInfo fileInfo = (SharedMediaFileInfo)entry;
             currentList.Add(fileInfo);
@@ -157,6 +159,7 @@ namespace Beeb {
     private void
     AddChannelFolder(VirtualFolder parent, string name, string slug) {
       VirtualFolder channelFolder = new VirtualFolder(CreateGuid(), name);
+      channelFolder.Thumbnail = "http://www.bbc.co.uk/iplayer/img/station_logos/" + slug + ".png";
       parent.AddFolder(channelFolder);
       this.folderLookup[channelFolder.Id] = channelFolder;
       AddFolderFromFeed(channelFolder, name + " highlights",   feedRoot + slug + "/highlights");

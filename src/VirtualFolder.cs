@@ -14,6 +14,7 @@ namespace Beeb {
     public string    Identifier = null;
     public DateTime  LastLoad   = DateTime.MinValue;
     public bool      Dynamic    = false;
+    public string    Thumbnail;
 
     public readonly ArrayList Items = new ArrayList();
 
