@@ -136,18 +136,22 @@ namespace Beeb {
     AddFolders() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
 
-      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
-      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
+      AddFolderFromFeed(rootFolder, "Most popular TV", feedRoot + "popular/tv/list");
+      AddFolderFromFeed(rootFolder, "TV highlights",   feedRoot + "highlights/tv");
 
-      AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
-      AddChannelFolder(rootFolder, "BBC Two",          "bbc_two");
-      AddChannelFolder(rootFolder, "BBC Three",        "bbc_three");
-      AddChannelFolder(rootFolder, "BBC Four",         "bbc_four");
-      AddChannelFolder(rootFolder, "CBBC",             "cbbc");
-      AddChannelFolder(rootFolder, "CBeebies",         "cbeebies");
-      AddChannelFolder(rootFolder, "BBC News Channel", "bbc_news24");
-      AddChannelFolder(rootFolder, "BBC Parliament",   "bbc_parliament");
-      AddChannelFolder(rootFolder, "BBC Alba",         "bbc_alba");
+      VirtualFolder allChannelsFolder = new VirtualFolder(CreateGuid(), "By channel");
+      rootFolder.AddFolder(allChannelsFolder);
+      this.folderLookup[allChannelsFolder.Id] = allChannelsFolder;
+
+      AddChannelFolder(allChannelsFolder, "BBC One",          "bbc_one");
+      AddChannelFolder(allChannelsFolder, "BBC Two",          "bbc_two");
+      AddChannelFolder(allChannelsFolder, "BBC Three",        "bbc_three");
+      AddChannelFolder(allChannelsFolder, "BBC Four",         "bbc_four");
+      AddChannelFolder(allChannelsFolder, "CBBC",             "cbbc");
+      AddChannelFolder(allChannelsFolder, "CBeebies",         "cbeebies");
+      AddChannelFolder(allChannelsFolder, "BBC News Channel", "bbc_news24");
+      AddChannelFolder(allChannelsFolder, "BBC Parliament",   "bbc_parliament");
+      AddChannelFolder(allChannelsFolder, "BBC Alba",         "bbc_alba");
     }
 
     private void
