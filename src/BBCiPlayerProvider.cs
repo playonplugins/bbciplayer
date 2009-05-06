@@ -140,8 +140,9 @@ namespace Beeb {
       AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
 
       AddChannelFolder(rootFolder, "BBC One",          "bbc_one");
-      AddChannelFolder(rootFolder, "BBC Two",          "bbc_three");
-      AddChannelFolder(rootFolder, "BBC Three",        "bbc_four");
+      AddChannelFolder(rootFolder, "BBC Two",          "bbc_two");
+      AddChannelFolder(rootFolder, "BBC Three",        "bbc_three");
+      AddChannelFolder(rootFolder, "BBC Four",         "bbc_four");
       AddChannelFolder(rootFolder, "CBBC",             "cbbc");
       AddChannelFolder(rootFolder, "CBeebies",         "cbeebies");
       AddChannelFolder(rootFolder, "BBC News Channel", "bbc_news24");
