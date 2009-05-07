@@ -23,6 +23,14 @@ file "test.dll" => SOURCES + TESTS + RESOURCES do |t|
     TESTS ))
 end
 
+file "plugin.zip" => TARGET do |t|
+  rm_f t.name
+  system(*(["zip", t.name] + SOURCES + TESTS + RESOURCES + [TARGET]))
+end
+
+desc "Package plugin and sources into a zip file"
+task :package => "plugin.zip"
+
 desc "Run tests"
 task :test => "test.dll" do |t|
   ENV['MONO_PATH'] = "lib"
