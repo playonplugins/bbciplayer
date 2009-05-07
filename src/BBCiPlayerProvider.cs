@@ -136,10 +136,10 @@ namespace Beeb {
     AddFolders() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
 
-      AddFolderFromFeed(rootFolder, "Most popular TV", feedRoot + "popular/tv/list");
-      AddFolderFromFeed(rootFolder, "TV highlights",   feedRoot + "highlights/tv");
+      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
+      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
 
-      VirtualFolder allChannelsFolder = new VirtualFolder(CreateGuid(), "By channel");
+      VirtualFolder allChannelsFolder = new VirtualFolder(CreateGuid(), "TV Channels");
       rootFolder.AddFolder(allChannelsFolder);
       this.folderLookup[allChannelsFolder.Id] = allChannelsFolder;
 
