@@ -51,7 +51,8 @@ namespace Beeb {
         ProgrammeItem prog = ProgrammeInformation(pid);
 
         // The thumbnail is the only piece of information we can't delegate to the playlist:
-        prog.Thumbnail = entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value;
+        prog.Thumbnail = entry.SelectSingleNode("atom:link/media:content/media:thumbnail", atomNS).Attributes["url"].Value.
+                         Replace("150_84", "640_360");
 
         items.Add(prog);
       }
