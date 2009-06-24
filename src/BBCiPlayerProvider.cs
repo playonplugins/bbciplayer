@@ -172,25 +172,39 @@ namespace Beeb {
       AddFolderFromFeed(channelFolder, name + " programmes",   feedRoot + slug + "/list");
     }
 
+    private VideoResource
+    InfoResource(VirtualFolder parent, string title) {
+      return new VideoResource(CreateGuid(), parent.Id, title, "", null,
+                               null, DateTime.MinValue, CreateGuid(), null,
+                               0, 0, null, null);
+    }
+
     private void
     LoadDynamicFolder(VirtualFolder vf) {
       this.Log("LoadDynamicFolder: "+vf.SourceUrl);
 
+      vf.Reset(); // Remove existing items
+
       try {
-        vf.Reset(); // Remove existing items
-
         foreach (ProgrammeItem prog in progDB.ProgrammesFromFeed(vf.SourceUrl)) {
-          string guid = vf.FindGuid(prog.Vpid);
-          if (guid == null) guid = CreateGuid();
+          try {
+            string guid = vf.FindGuid(prog.Vpid);
+            if (guid == null) guid = CreateGuid();
 
-          VideoResource info =
-            new VideoResource(guid, vf.Id, prog.Title, prog.Vpid, prog.Description, prog.Thumbnail, prog.Date, prog.Vpid, null,
-                              prog.Duration * 1000 /* PlayOn wants ms */, 0, null, null);
+            VideoResource info =
+              new VideoResource(guid, vf.Id, prog.Title, prog.Vpid, prog.Description,
+                                prog.Thumbnail, prog.Date, prog.Vpid, null,
+                                prog.Duration * 1000 /* PlayOn wants ms */, 0, null, null);
 
-          this.titleLookup[info.Id] = info;
-          vf.AddMedia(info);
+            this.titleLookup[info.Id] = info;
+            vf.AddMedia(info);
+          } catch (Exception ex) {
+            vf.AddMedia(InfoResource(vf, "Error fetching programme information."));
+            this.Log("Error: " + ex);
+          }
         }
       } catch (Exception ex) {
+        vf.AddMedia(InfoResource(vf, "Error fetching directory information."));
         this.Log("Error: " + ex);
       }
     }
