@@ -43,4 +43,14 @@ using NUnit.Framework;
     Assert.IsNull(lru.Get("b"));
   }
 
+  [Test] public void
+  ShouldNotExhibitOutOfRangeBugWhenReAddingTheSameKeyAfterExpiry() {
+    lru.Set("a", 1);
+    lru.Set("b", 1);
+    lru.Set("c", 1);
+    lru.Set("d", 1);
+    lru.Set("a", 1);
+    lru.Set("a", 1);
+  }
+
 }
