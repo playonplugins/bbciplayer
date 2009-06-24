@@ -10,6 +10,7 @@ public class LruCache {
   private Hashtable     recentKeyIndex = new Hashtable();
   private int           maxSize;
   private object        localLock      = new object();
+  private int           keyAdjustment  = 0;
 
   public
   LruCache(int maxSize) {
@@ -39,10 +40,10 @@ public class LruCache {
   private void
   Touch(object key) {
     if (recentKeyIndex.ContainsKey(key)) {
-      recentKeys.RemoveAt((int)recentKeyIndex[key]);
+      recentKeys.RemoveAt((int)recentKeyIndex[key] - keyAdjustment);
     }
     recentKeys.Add(key);
-    recentKeyIndex[key] = recentKeys.Count - 1;
+    recentKeyIndex[key] = recentKeys.Count - 1 + keyAdjustment;
   }
 
   private void
@@ -52,6 +53,7 @@ public class LruCache {
       recentKeyIndex.Remove(key);
       data.Remove(key);
       recentKeys.RemoveAt(0);
+      keyAdjustment++;
     }
   }
 }

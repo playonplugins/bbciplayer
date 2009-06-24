@@ -53,4 +53,16 @@ using NUnit.Framework;
     lru.Set("a", 1);
   }
 
+  [Test] public void
+  ShouldCalculateCorrectKeyIndexOverMultipleCycles() {
+    for (int i = 0; i < 1000; i++) {
+      lru.Set("a", 1);
+      lru.Set("b", 2);
+      lru.Set("c", 3);
+      lru.Set("d", 4);
+    }
+    Assert.AreEqual(4, lru.Get("d"));
+    Assert.IsNull(lru.Get("a"));
+  }
+
 }
