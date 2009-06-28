@@ -2,6 +2,7 @@ namespace Beeb {
 
   using System;
   using System.Collections;
+  using System.Collections.Generic;
   using System.Collections.Specialized;
   using System.IO;
   using System.Net;
@@ -51,10 +52,10 @@ namespace Beeb {
       this.Log("GetSharedMedia");
 
       if (id == null || id.Length == 0) {
-        return new Payload("-1", "-1", "[Invalid Request]", 0, new ArrayList(0));
+        return new Payload("-1", "-1", "[Invalid Request]", 0, new List<AbstractSharedMediaInfo>(0));
       }
 
-      ArrayList currentList = new ArrayList();
+      List<AbstractSharedMediaInfo> currentList = new List<AbstractSharedMediaInfo>();
 
       if (id == this.ID) { // root
         foreach (VirtualFolder subFolder in this.rootFolder.Items) {
@@ -95,7 +96,7 @@ namespace Beeb {
                            GetRange(currentList, startIndex, requestCount));
       }
 
-      return new Payload("-1", "-1", "[Unknown Request]", 0, new ArrayList(0));
+      return new Payload("-1", "-1", "[Unknown Request]", 0, new List<AbstractSharedMediaInfo>(0));
     }
 
     public string
@@ -214,13 +215,13 @@ namespace Beeb {
       return this.ID + "-" + Guid.NewGuid();
     }
 
-    private ArrayList
-    GetRange(ArrayList list, int startIndex, int requestCount) {
+    private List<AbstractSharedMediaInfo>
+    GetRange(List<AbstractSharedMediaInfo> list, int startIndex, int requestCount) {
       if (requestCount == 0) {
         requestCount = int.MaxValue;
       }
       if (startIndex > list.Count) {
-        return new ArrayList(0);
+        return new List<AbstractSharedMediaInfo>(0);
       }
       return list.GetRange(startIndex, Math.Min(requestCount, list.Count - startIndex));
     }

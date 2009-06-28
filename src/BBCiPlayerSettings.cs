@@ -39,6 +39,11 @@ namespace Beeb {
       get { return "Watch BBC programmes."; }
     }
 
+    public string
+    ID {
+      get { return "a978d03a-08b9-44db-89af-c7bd976c8747"; }
+    }
+
     public bool
     RequiresLogin {
       get { return false; }
@@ -60,7 +65,7 @@ namespace Beeb {
     }
 
     public System.Windows.Forms.Control
-    ConfigureOptions(NameValueCollection props) {
+    ConfigureOptions(NameValueCollection props, EventHandler e) {
       return null;
     }
 
