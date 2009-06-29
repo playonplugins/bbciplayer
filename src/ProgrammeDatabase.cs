@@ -57,10 +57,19 @@ namespace Beeb {
         items.Add(prog);
       }
 
+      if (FeedShouldBeAlphabetized(feedUrl)) {
+        items.Sort(delegate(ProgrammeItem a, ProgrammeItem b) { return a.Title.CompareTo(b.Title); });
+      }
+
       return items;
     }
 
     ////
+
+    private bool
+    FeedShouldBeAlphabetized(string feedUrl) {
+      return Regex.Match(feedUrl, @"/list$").Success;
+    }
 
     private ProgrammeItem
     ProgrammeInformation(string pid) {
