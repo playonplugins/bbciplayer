@@ -153,6 +153,26 @@ namespace Beeb {
       AddChannelFolder(allChannelsFolder, "BBC News Channel", "bbc_news24");
       AddChannelFolder(allChannelsFolder, "BBC Parliament",   "bbc_parliament");
       AddChannelFolder(allChannelsFolder, "BBC Alba",         "bbc_alba");
+
+      VirtualFolder allCategoriesFolder = new VirtualFolder(CreateGuid(), "TV Categories");
+      rootFolder.AddFolder(allCategoriesFolder);
+      this.folderLookup[allCategoriesFolder.Id] = allCategoriesFolder;
+
+      AddCategoryFolder(allCategoriesFolder, "Children's",        "categories/childrens/tv");
+      AddCategoryFolder(allCategoriesFolder, "Comedy",            "categories/comedy/tv");
+      AddCategoryFolder(allCategoriesFolder, "Drama",             "categories/drama/tv");
+      AddCategoryFolder(allCategoriesFolder, "Entertainment",     "categories/entertainment/tv");
+      AddCategoryFolder(allCategoriesFolder, "Factual",           "categories/factual/tv");
+      AddCategoryFolder(allCategoriesFolder, "Films",             "categories/films/tv");
+      AddCategoryFolder(allCategoriesFolder, "Learning",          "categories/learning/tv");
+      AddCategoryFolder(allCategoriesFolder, "Music",             "categories/Music/tv");
+      AddCategoryFolder(allCategoriesFolder, "Drama",             "categories/News/tv");
+      AddCategoryFolder(allCategoriesFolder, "Religion & Ethics", "categories/religion_and_ethics/tv");
+      AddCategoryFolder(allCategoriesFolder, "Sport",             "categories/sport/tv");
+      AddCategoryFolder(allCategoriesFolder, "Northern Ireland",  "categories/northern_ireland/tv");
+      AddCategoryFolder(allCategoriesFolder, "Scotland",          "categories/scotland/tv");
+      AddCategoryFolder(allCategoriesFolder, "Wales",             "categories/wales/tv");
+      AddCategoryFolder(allCategoriesFolder, "Sign Zone",         "categories/signed/tv");
     }
 
     private void
@@ -163,14 +183,29 @@ namespace Beeb {
     }
 
     private void
+    AddFolderWithSubcategories(VirtualFolder parent, string name, string path, string thumbnail) {
+      VirtualFolder mainFolder = new VirtualFolder(CreateGuid(), name);
+      mainFolder.Thumbnail = thumbnail;
+      parent.AddFolder(mainFolder);
+      this.folderLookup[mainFolder.Id] = mainFolder;
+      AddFolderFromFeed(mainFolder, name + " highlights",   feedRoot + path + "/highlights");
+      AddFolderFromFeed(mainFolder, name + " most popular", feedRoot + path + "/popular");
+      AddFolderFromFeed(mainFolder, name + " programmes",   feedRoot + path + "/list");
+    }
+
+    private void
+    AddFolderWithSubcategories(VirtualFolder parent, string name, string path) {
+      AddFolderWithSubcategories(parent, name, path, null);
+    }
+
+    private void
     AddChannelFolder(VirtualFolder parent, string name, string slug) {
-      VirtualFolder channelFolder = new VirtualFolder(CreateGuid(), name);
-      channelFolder.Thumbnail = "http://www.bbc.co.uk/iplayer/img/station_logos/" + slug + ".png";
-      parent.AddFolder(channelFolder);
-      this.folderLookup[channelFolder.Id] = channelFolder;
-      AddFolderFromFeed(channelFolder, name + " highlights",   feedRoot + slug + "/highlights");
-      AddFolderFromFeed(channelFolder, name + " most popular", feedRoot + slug + "/popular");
-      AddFolderFromFeed(channelFolder, name + " programmes",   feedRoot + slug + "/list");
+      AddFolderWithSubcategories(parent, name, slug, "http://www.bbc.co.uk/iplayer/img/station_logos/" + slug + ".png");
+    }
+
+    private void
+    AddCategoryFolder(VirtualFolder parent, string name, string path) {
+      AddFolderWithSubcategories(parent, name, path);
     }
 
     private VideoResource
