@@ -200,7 +200,6 @@ namespace Beeb {
             this.titleLookup[info.Id] = info;
             vf.AddMedia(info);
           } catch (Exception ex) {
-            vf.AddMedia(InfoResource(vf, "Error fetching programme information."));
             this.Log("Error: " + ex);
           }
         }
