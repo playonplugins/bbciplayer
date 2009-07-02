@@ -183,29 +183,24 @@ namespace Beeb {
     }
 
     private void
-    AddFolderWithSubcategories(VirtualFolder parent, string name, string path, string thumbnail) {
+    AddChannelFolder(VirtualFolder parent, string name, string path) {
       VirtualFolder mainFolder = new VirtualFolder(CreateGuid(), name);
-      mainFolder.Thumbnail = thumbnail;
+      mainFolder.Thumbnail = "http://www.bbc.co.uk/iplayer/img/station_logos/" + path + ".png";
       parent.AddFolder(mainFolder);
       this.folderLookup[mainFolder.Id] = mainFolder;
+      AddFolderFromFeed(mainFolder, "Most popular on " + name, feedRoot + path + "/popular");
       AddFolderFromFeed(mainFolder, name + " highlights",   feedRoot + path + "/highlights");
-      AddFolderFromFeed(mainFolder, name + " most popular", feedRoot + path + "/popular");
       AddFolderFromFeed(mainFolder, name + " programmes",   feedRoot + path + "/list");
     }
 
     private void
-    AddFolderWithSubcategories(VirtualFolder parent, string name, string path) {
-      AddFolderWithSubcategories(parent, name, path, null);
-    }
-
-    private void
-    AddChannelFolder(VirtualFolder parent, string name, string slug) {
-      AddFolderWithSubcategories(parent, name, slug, "http://www.bbc.co.uk/iplayer/img/station_logos/" + slug + ".png");
-    }
-
-    private void
     AddCategoryFolder(VirtualFolder parent, string name, string path) {
-      AddFolderWithSubcategories(parent, name, path);
+      VirtualFolder mainFolder = new VirtualFolder(CreateGuid(), name);
+      parent.AddFolder(mainFolder);
+      this.folderLookup[mainFolder.Id] = mainFolder;
+      AddFolderFromFeed(mainFolder, "Most popular " + name, feedRoot + path + "/popular");
+      AddFolderFromFeed(mainFolder, name + " highlights",   feedRoot + path + "/highlights");
+      AddFolderFromFeed(mainFolder, name + " programmes",   feedRoot + path + "/list");
     }
 
     private VideoResource
