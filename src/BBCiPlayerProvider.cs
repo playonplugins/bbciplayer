@@ -235,11 +235,12 @@ namespace Beeb {
             this.titleLookup[info.Id] = info;
             vf.AddMedia(info);
           } catch (Exception ex) {
+            vf.AddMedia(InfoResource(vf, "Error retrieving programme information."));
             this.Log("Error: " + ex);
           }
         }
       } catch (Exception ex) {
-        vf.AddMedia(InfoResource(vf, "Error fetching directory information."));
+        vf.AddMedia(InfoResource(vf, "Error retrieving feed."));
         this.Log("Error: " + ex);
       }
     }
