@@ -103,7 +103,11 @@ namespace Beeb {
       prog.Date  = DateTime.Parse( doc.SelectSingleNode("pl:playlist/pl:updated", ns).InnerText,
                                       System.Globalization.CultureInfo.InvariantCulture );
 
-      prog.Duration = System.Int64.Parse(item.Attributes["duration"].Value);
+      try {
+        prog.Duration = System.Int64.Parse(item.Attributes["duration"].Value);
+      } catch {
+        prog.Duration = 5 * 60 * 60; // 5 hours
+      }
       prog.Vpid     = item.Attributes["identifier"].Value;
 
       return prog;
