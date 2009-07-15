@@ -17,7 +17,7 @@ namespace Beeb {
     private Hashtable          folderLookup           = new Hashtable();
     private int                dynamicFolderCacheTime = 300; // seconds
     private ProgrammeDatabase  progDB;
-    private string             feedRoot               = "http://feeds.bbc.co.uk/iplayer/";
+    private string             feedRoot               = "http://feeds.bbc.co.uk/iplayer";
 
     ////
 
@@ -137,70 +137,102 @@ namespace Beeb {
     AddFolders() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
 
-      AddFolderFromFeed(rootFolder, "Most Popular TV", feedRoot + "popular/tv/list");
-      AddFolderFromFeed(rootFolder, "TV Highlights",   feedRoot + "highlights/tv");
-
-      VirtualFolder allChannelsFolder = new VirtualFolder(CreateGuid(), "TV Channels");
-      rootFolder.AddFolder(allChannelsFolder);
-      this.folderLookup[allChannelsFolder.Id] = allChannelsFolder;
-
-      AddChannelFolder(allChannelsFolder, "BBC One",          "bbc_one");
-      AddChannelFolder(allChannelsFolder, "BBC Two",          "bbc_two");
-      AddChannelFolder(allChannelsFolder, "BBC Three",        "bbc_three");
-      AddChannelFolder(allChannelsFolder, "BBC Four",         "bbc_four");
-      AddChannelFolder(allChannelsFolder, "CBBC",             "cbbc");
-      AddChannelFolder(allChannelsFolder, "CBeebies",         "cbeebies");
-      AddChannelFolder(allChannelsFolder, "BBC News Channel", "bbc_news24");
-      AddChannelFolder(allChannelsFolder, "BBC Parliament",   "bbc_parliament");
-      AddChannelFolder(allChannelsFolder, "BBC Alba",         "bbc_alba");
-
-      VirtualFolder allCategoriesFolder = new VirtualFolder(CreateGuid(), "TV Categories");
-      rootFolder.AddFolder(allCategoriesFolder);
-      this.folderLookup[allCategoriesFolder.Id] = allCategoriesFolder;
-
-      AddCategoryFolder(allCategoriesFolder, "Children's",        "categories/childrens/tv");
-      AddCategoryFolder(allCategoriesFolder, "Comedy",            "categories/comedy/tv");
-      AddCategoryFolder(allCategoriesFolder, "Drama",             "categories/drama/tv");
-      AddCategoryFolder(allCategoriesFolder, "Entertainment",     "categories/entertainment/tv");
-      AddCategoryFolder(allCategoriesFolder, "Factual",           "categories/factual/tv");
-      AddCategoryFolder(allCategoriesFolder, "Films",             "categories/films/tv");
-      AddCategoryFolder(allCategoriesFolder, "Learning",          "categories/learning/tv");
-      AddCategoryFolder(allCategoriesFolder, "Music",             "categories/Music/tv");
-      AddCategoryFolder(allCategoriesFolder, "Drama",             "categories/News/tv");
-      AddCategoryFolder(allCategoriesFolder, "Religion & Ethics", "categories/religion_and_ethics/tv");
-      AddCategoryFolder(allCategoriesFolder, "Sport",             "categories/sport/tv");
-      AddCategoryFolder(allCategoriesFolder, "Northern Ireland",  "categories/northern_ireland/tv");
-      AddCategoryFolder(allCategoriesFolder, "Scotland",          "categories/scotland/tv");
-      AddCategoryFolder(allCategoriesFolder, "Wales",             "categories/wales/tv");
-      AddCategoryFolder(allCategoriesFolder, "Sign Zone",         "categories/signed/tv");
-    }
-
-    private void
-    AddFolderFromFeed(VirtualFolder parent, string name, string url) {
-      VirtualFolder subFolder = new VirtualFolder(CreateGuid(), name, url, true);
-      parent.AddFolder(subFolder);
-      this.folderLookup[subFolder.Id] = subFolder;
-    }
-
-    private void
-    AddChannelFolder(VirtualFolder parent, string name, string path) {
-      VirtualFolder mainFolder = new VirtualFolder(CreateGuid(), name);
-      mainFolder.Thumbnail = "http://www.bbc.co.uk/iplayer/img/station_logos/" + path + ".png";
-      parent.AddFolder(mainFolder);
-      this.folderLookup[mainFolder.Id] = mainFolder;
-      AddFolderFromFeed(mainFolder, "Most popular on " + name, feedRoot + path + "/popular");
-      AddFolderFromFeed(mainFolder, name + " highlights",   feedRoot + path + "/highlights");
-      AddFolderFromFeed(mainFolder, name + " programmes",   feedRoot + path + "/list");
-    }
-
-    private void
-    AddCategoryFolder(VirtualFolder parent, string name, string path) {
-      VirtualFolder mainFolder = new VirtualFolder(CreateGuid(), name);
-      parent.AddFolder(mainFolder);
-      this.folderLookup[mainFolder.Id] = mainFolder;
-      AddFolderFromFeed(mainFolder, "Most popular " + name, feedRoot + path + "/popular");
-      AddFolderFromFeed(mainFolder, name + " highlights",   feedRoot + path + "/highlights");
-      AddFolderFromFeed(mainFolder, name + " programmes",   feedRoot + path + "/list");
+      FolderStructure.Folder(rootFolder, folderLookup, feedRoot, delegate(FolderStructure root){
+        root.Feed("Most Popular TV", "popular/tv/list");
+        root.Feed("TV Highlights",   "highlights/tv");
+        root.Folder("TV Channels", delegate(FolderStructure channels){
+          channels.Channel("BBC One",          "bbc_one");
+          channels.Channel("BBC Two",          "bbc_two");
+          channels.Channel("BBC Three",        "bbc_three");
+          channels.Channel("BBC Four",         "bbc_four");
+          channels.Channel("CBBC",             "cbbc");
+          channels.Channel("CBeebies",         "cbeebies");
+          channels.Channel("BBC News Channel", "bbc_news24");
+          channels.Channel("BBC Parliament",   "bbc_parliament");
+          channels.Channel("BBC Alba",         "bbc_alba");
+        });
+        root.Folder("TV Categories", "categories", delegate(FolderStructure categories){
+          categories.Category("Children's",        "childrens/tv");
+          categories.Category("Comedy",            "comedy/tv");
+          categories.Folder("Drama", "drama", delegate(FolderStructure drama){
+            drama.Feed("Most popular Drama",      "popular");
+            drama.Feed("Drama highlights",        "highlights");
+            drama.Feed("All Drama programmes",    "list");
+            drama.Feed("Action & Adventure",      "action_and_adventure/tv/list");
+            drama.Feed("Biographical",            "biographical/tv/list");
+            drama.Feed("Classic & Period",        "classic_and_period/tv/list");
+            drama.Feed("Crime",                   "crime/tv/list");
+            drama.Feed("Historical",              "historical/tv/list");
+            drama.Feed("Horror & Supernatual",    "horror_and_supernatural/tv/list");
+            drama.Feed("Medical",                 "medical/tv/list");
+            drama.Feed("Musical",                 "musical/tv/list");
+            drama.Feed("Relationships & Romance", "relationship_and_romance/tv/list");
+            drama.Feed("SciFi & Fantasy",         "scifi_and_fantasy/tv/list");
+            drama.Feed("Soaps",                   "soaps/tv/list");
+            drama.Feed("Thriller",                "thriller/tv/list");
+          });
+          categories.Category("Entertainment",     "entertainment/tv");
+          categories.Folder("Factual", "factual", delegate(FolderStructure factual){
+            factual.Feed("Most popular Factual",       "tv/popular");
+            factual.Feed("Factual highlights",         "tv/highlights");
+            factual.Feed("All Factual programmes",     "tv/list");
+            factual.Feed("Antiques",                   "antiques/tv/list");
+            factual.Feed("Arts, Culture & the Media",  "arts_culture_and_the_media/tv/list");
+            factual.Feed("Beauty & Style",             "beauty_and_style/tv/list");
+            factual.Feed("Cars & Motors",              "cars_and_motors/tv/list");
+            factual.Feed("Cinema",                     "cinema/tv/list");
+            factual.Feed("Consumer",                   "consumer/tv/list");
+            factual.Feed("Crime & Justice",            "crime_and_justice/tv/list");
+            factual.Feed("Disability",                 "disability/tv/list");
+            factual.Feed("Families & Relationships",   "families_and_relationships/tv/list");
+            factual.Feed("Food & Drink",               "food_and_drink/tv/list");
+            factual.Feed("Health & Wellbeing",         "health_and_wellbeing/tv/list");
+            factual.Feed("History",                    "history/tv/list");
+            factual.Feed("Homes & Gardens",            "homes_and_gardens/tv/list");
+            factual.Feed("Life Stories",               "life_stories/tv/list");
+            factual.Feed("Money",                      "money/tv/list");
+            factual.Feed("Pets & Animals",             "pets_and_animals/tv/list");
+            factual.Feed("Politics",                   "politics/tv/list");
+            factual.Feed("Football",                   "football/tv/list");
+            factual.Feed("Gaelic Games",               "gaelic_games/tv/list");
+            factual.Feed("Golf",                       "golf/tv/list");
+            factual.Feed("Motorsport",                 "motorsport/tv/list");
+            factual.Feed("Rugby League",               "rugby_league/tv/list");
+            factual.Feed("Rugby Union",                "regby_union/tv/list");
+            factual.Feed("Tennis",                     "tennis/tv/list");
+          });
+          categories.Category("Films",             "films/tv");
+          categories.Folder("Learning", "learning", delegate(FolderStructure learning){
+            learning.Feed("Most popular Learning",   "popular");
+            learning.Feed("Learning highlights",     "highlights");
+            learning.Feed("All Learning programmes", "list");
+            learning.Feed("Adult",                   "adult/tv/list");
+            learning.Feed("Pre-School",              "pre_school/tv/list");
+          });
+          categories.Category("Music",             "Music/tv");
+          categories.Category("Religion & Ethics", "religion_and_ethics/tv");
+          categories.Folder("Sport", "sport", delegate(FolderStructure sport){
+            sport.Feed("Most popular Sport",   "tv/popular");
+            sport.Feed("Sport highlights",     "tv/highlights");
+            sport.Feed("All Sport programmes", "tv/list");
+            sport.Feed("Boxing",               "boxing/tv/list");
+            sport.Feed("Cricket",              "cricket/tv/list");
+            sport.Feed("Equestrian",           "equestrian/tv/list");
+            sport.Feed("Football",             "football/tv/list");
+            sport.Feed("Gaelic Games",         "gaelic_games/tv/list");
+            sport.Feed("Golf",                 "golf/tv/list");
+            sport.Feed("Motorsport",           "motorsport/tv/list");
+            sport.Feed("Rugby League",         "rugby_league/tv/list");
+            sport.Feed("Rugby Union",          "regby_union/tv/list");
+            sport.Feed("Tennis",               "tennis/tv/list");
+          });
+          categories.Category("Northern Ireland",  "northern_ireland/tv");
+          categories.Category("Scotland",          "scotland/tv");
+          categories.Category("Wales",             "wales/tv");
+          categories.Category("Sign Zone",         "signed/tv");
+          categories.Feed("Films", "films/tv/list");
+        });
+      });
     }
 
     private VideoResource
