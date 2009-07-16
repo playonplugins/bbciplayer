@@ -96,6 +96,9 @@ namespace Beeb {
       ns.AddNamespace("pl", "http://bbc.co.uk/2008/emp/playlist");
 
       XmlNode item = doc.SelectSingleNode("//pl:item[@kind='programme'][descendant::pl:alternate[@id='default']]", ns);
+      if (item == null) {
+        item = doc.SelectSingleNode("//pl:item[@kind='programme'][descendant::pl:alternate]", ns);
+      }
       if (item == null) return null;
 
       prog.Title       = doc.SelectSingleNode("pl:playlist/pl:title", ns).InnerText;
