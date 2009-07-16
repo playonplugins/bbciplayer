@@ -240,8 +240,8 @@ namespace Beeb {
           categories.Category("Scotland",          "scotland/tv");
           categories.Category("Wales",             "wales/tv");
           categories.Category("Sign Zone",         "signed/tv");
-          categories.Feed("Films", "films/tv/list");
         });
+        root.Feed("Films", "films/tv/list");
       });
     }
 
