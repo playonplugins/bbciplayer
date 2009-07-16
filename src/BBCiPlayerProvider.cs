@@ -272,12 +272,12 @@ namespace Beeb {
             this.titleLookup[info.Id] = info;
             vf.AddMedia(info);
           } catch (Exception ex) {
-            vf.AddMedia(InfoResource(vf, "Error retrieving programme information. Please restart PlayOn and check your internet connection."));
+            vf.AddMedia(InfoResource(vf, "Error retrieving programme details. Please restart PlayOn."));
             this.Log("Error: " + ex);
           }
         }
       } catch (Exception ex) {
-        vf.AddMedia(InfoResource(vf, "Error retrieving feed. Please restart PlayOn and check your internet connection."));
+        vf.AddMedia(InfoResource(vf, "Error retrieving feed. Please restart PlayOn."));
         this.Log("Error: " + ex);
       }
     }
