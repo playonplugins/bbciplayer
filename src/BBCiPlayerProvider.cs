@@ -45,6 +45,11 @@ namespace Beeb {
       }
     }
 
+    public void
+    CacheFolder(VirtualFolder folder) {
+      this.folderLookup[folder.Id] = folder;
+    }
+
     ////
 
     public Payload
@@ -131,13 +136,18 @@ namespace Beeb {
       AddFolders();
     }
 
+    public string
+    CreateGuid() {
+      return this.ID + "-" + Guid.NewGuid();
+    }
+
     ////
 
     private void
     AddFolders() {
       this.rootFolder = new VirtualFolder(this.ID, this.Name);
 
-      FolderStructure.Folder(rootFolder, folderLookup, feedRoot, delegate(FolderStructure root){
+      FolderStructure.Folder(rootFolder, this, feedRoot, delegate(FolderStructure root){
         root.Feed("Most Popular TV", "popular/tv/list");
         root.Feed("TV Highlights",   "highlights/tv");
         root.Folder("TV Channels", delegate(FolderStructure channels){
@@ -270,11 +280,6 @@ namespace Beeb {
         vf.AddMedia(InfoResource(vf, "Error retrieving feed. Please restart PlayOn and check your internet connection."));
         this.Log("Error: " + ex);
       }
-    }
-
-    private string
-    CreateGuid() {
-      return this.ID + "-" + Guid.NewGuid();
     }
 
     private List<AbstractSharedMediaInfo>

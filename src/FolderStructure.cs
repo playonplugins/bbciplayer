@@ -4,24 +4,24 @@ namespace Beeb {
   using System.Collections;
 
   public class FolderStructure {
-    private VirtualFolder  parent;
-    private Hashtable      folderLookup;
-    private string         path;
+    private VirtualFolder      parent;
+    private BBCiPlayerProvider provider;
+    private string             path;
 
     public delegate void FolderDelegate(FolderStructure f);
 
     ////
 
     public
-    FolderStructure(VirtualFolder parent, Hashtable folderLookup, string path) {
+    FolderStructure(VirtualFolder parent, BBCiPlayerProvider provider, string path) {
       this.parent       = parent;
-      this.folderLookup = folderLookup;
+      this.provider     = provider;
       this.path         = path;
     }
 
     public static void
-    Folder(VirtualFolder parent, Hashtable folderLookup, string path, FolderDelegate subfolderDelegate) {
-      FolderStructure f = new FolderStructure(parent, folderLookup, path);
+    Folder(VirtualFolder parent, BBCiPlayerProvider provider, string path, FolderDelegate subfolderDelegate) {
+      FolderStructure f = new FolderStructure(parent, provider, path);
       subfolderDelegate(f);
     }
 
@@ -29,11 +29,11 @@ namespace Beeb {
 
     public void
     Category(string name, string path) {
-      VirtualFolder folder = new VirtualFolder(CreateGuid(), name);
+      VirtualFolder folder = new VirtualFolder(provider.CreateGuid(), name);
       AddFolderWithLookup(this.parent, folder);
 
       string subPath = this.path + "/" + path;
-      FolderStructure f = new FolderStructure(folder, this.folderLookup, subPath);
+      FolderStructure f = new FolderStructure(folder, this.provider, subPath);
       f.Feed("Most popular " + name,        "popular");
       f.Feed(name + " highlights",          "highlights");
       f.Feed("All " + name + " programmes", "list");
@@ -41,12 +41,12 @@ namespace Beeb {
 
     public void
     Channel(string name, string path) {
-      VirtualFolder folder = new VirtualFolder(CreateGuid(), name);
+      VirtualFolder folder = new VirtualFolder(provider.CreateGuid(), name);
       folder.Thumbnail = "http://www.bbc.co.uk/iplayer/img/station_logos/" + path + ".png";
       AddFolderWithLookup(this.parent, folder);
 
       string subPath = this.path + "/" + path;
-      FolderStructure f = new FolderStructure(folder, this.folderLookup, subPath);
+      FolderStructure f = new FolderStructure(folder, this.provider, subPath);
       f.Feed("Most popular on " + name,     "popular");
       f.Feed(name + " highlights",          "highlights");
       f.Feed("All " + name + " programmes", "list");
@@ -56,7 +56,7 @@ namespace Beeb {
     Folder(string name, string path, FolderDelegate subfolderDelegate) {
       string subPath;
 
-      VirtualFolder child = new VirtualFolder(CreateGuid(), name);
+      VirtualFolder child = new VirtualFolder(provider.CreateGuid(), name);
       AddFolderWithLookup(this.parent, child);
 
       if (path == null) {
@@ -65,7 +65,7 @@ namespace Beeb {
         subPath = this.path + "/" + path;
       }
 
-      subfolderDelegate(new FolderStructure(child, this.folderLookup, subPath));
+      subfolderDelegate(new FolderStructure(child, this.provider, subPath));
     }
 
     public void
@@ -75,22 +75,17 @@ namespace Beeb {
 
     public void
     Feed(string name, string path) {
-      VirtualFolder child = new VirtualFolder(CreateGuid(), name, this.path + "/" + path, true);
+      VirtualFolder child = new VirtualFolder(provider.CreateGuid(), name, this.path + "/" + path, true);
       AddFolderWithLookup(this.parent, child);
     }
 
     ////
 
-    private string
-    CreateGuid() {
-      return "FolderStructure-" + Guid.NewGuid();
-    }
-
     private void
     AddFolderWithLookup(VirtualFolder parent, VirtualFolder child)
     {
       parent.AddFolder(child);
-      this.folderLookup[child.Id] = child;
+      provider.CacheFolder(child);
     }
   }
 }
