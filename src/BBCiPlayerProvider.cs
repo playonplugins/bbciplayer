@@ -203,13 +203,6 @@ namespace Beeb {
             factual.Feed("Money",                      "money/tv/list");
             factual.Feed("Pets & Animals",             "pets_and_animals/tv/list");
             factual.Feed("Politics",                   "politics/tv/list");
-            factual.Feed("Football",                   "football/tv/list");
-            factual.Feed("Gaelic Games",               "gaelic_games/tv/list");
-            factual.Feed("Golf",                       "golf/tv/list");
-            factual.Feed("Motorsport",                 "motorsport/tv/list");
-            factual.Feed("Rugby League",               "rugby_league/tv/list");
-            factual.Feed("Rugby Union",                "regby_union/tv/list");
-            factual.Feed("Tennis",                     "tennis/tv/list");
           });
           categories.Category("Films",             "films/tv");
           categories.Folder("Learning", "learning", delegate(FolderStructure learning){
