@@ -232,7 +232,6 @@ namespace Beeb {
           categories.Category("Northern Ireland",  "northern_ireland/tv");
           categories.Category("Scotland",          "scotland/tv");
           categories.Category("Wales",             "wales/tv");
-          categories.Category("Sign Zone",         "signed/tv");
         });
         root.Feed("Films", "films/tv/list");
       });
