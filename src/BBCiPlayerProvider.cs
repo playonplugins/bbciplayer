@@ -203,6 +203,8 @@ namespace Beeb {
             factual.Feed("Money",                      "money/tv/list");
             factual.Feed("Pets & Animals",             "pets_and_animals/tv/list");
             factual.Feed("Politics",                   "politics/tv/list");
+            factual.Feed("Science & Nature",           "science_and_nature/tv/list");
+            factual.Feed("Travel",                     "travel/tv/list");
           });
           categories.Category("Films",             "films/tv");
           categories.Folder("Learning", "learning", delegate(FolderStructure learning){
