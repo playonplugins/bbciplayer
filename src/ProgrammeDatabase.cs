@@ -21,7 +21,8 @@ namespace Beeb {
       XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
       ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
 
-      XmlNode entry     = doc.SelectSingleNode("//bbc:media[@encoding='vp6']/bbc:connection", ns);
+      XmlNode entry = doc.SelectSingleNode("//bbc:media[@service='iplayer_broadband_streaming']/bbc:connection", ns);
+      if (entry == null) entry = doc.SelectSingleNode("//bbc:media[@service='iplayer_streaming_h264_flv_lo']/bbc:connection", ns);
       if (entry == null) return null;
 
       string server     = entry.Attributes["server"].Value;
