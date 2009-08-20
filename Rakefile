@@ -6,6 +6,13 @@ RESOURCES = FileList[File.join("res", "**", "*")]
 TARGET    = "BBCiPlayer.plugin"
 
 file TARGET => SOURCES + RESOURCES do |t|
+  assembly_info = File.read("src/Properties/AssemblyInfo.cs")
+  version = assembly_info[/AssemblyVersion\("([\d\.]+)"\)/, 1]
+  new_version = version.split(/\./).map{ |a| a.to_i }
+  new_version[-1] += 1
+  File.open("src/Properties/AssemblyInfo.cs", "w") do |f|
+    f << assembly_info.gsub(version, new_version * ".")
+  end
   system(*(
     ["gmcs", "-lib:lib", "-t:library", "-out:#{t.name}"] +
     LIBRARIES.map{ |a| "-r:#{a}.dll" } +
