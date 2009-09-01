@@ -21,17 +21,30 @@ namespace Beeb {
       XmlNamespaceManager ns = new XmlNamespaceManager(doc.NameTable);
       ns.AddNamespace("bbc", "http://bbc.co.uk/2008/mp/mediaselection");
 
-      XmlNode entry = doc.SelectSingleNode("//bbc:media[@service='iplayer_broadband_streaming']/bbc:connection", ns);
-      if (entry == null) entry = doc.SelectSingleNode("//bbc:media[@service='iplayer_streaming_h264_flv_lo']/bbc:connection", ns);
+      XmlNode entry = doc.SelectSingleNode("//bbc:media[@service='iplayer_streaming_h264_flv']/bbc:connection", ns);
       if (entry == null) return null;
 
+      string identifier = entry.Attributes["identifier"].Value;
+      string swfurl     = "http://www.bbc.co.uk/emp/9player.swf?revision=10344_10753";
       string server     = entry.Attributes["server"].Value;
       string authString = entry.Attributes["authString"].Value;
-      string identifier = entry.Attributes["identifier"].Value;
+
+      switch (entry.Attributes["kind"].Value) {
+        case "akamai":
+          identifier = identifier.Replace(@"^mp4:", "");
+          break;
+        case "limelight":
+          break;
+        default:
+          return null;
+      }
 
       return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
              "&auth=" + authString + "&aifp=v001&slist=" + identifier + "|" +
-             "<rtmpMedia version=\"1.0\"><mediaPath>" + identifier + "</mediaPath></rtmpMedia>";
+             "<rtmpMedia version=\"1.0\">" +
+             "<mediaPath>" + identifier + "</mediaPath>" +
+             "<swfUrl>" + swfurl + "</swfUrl>" +
+             "</rtmpMedia>";
     }
 
     public List<ProgrammeItem>
