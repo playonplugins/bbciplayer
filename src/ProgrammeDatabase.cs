@@ -39,12 +39,25 @@ namespace Beeb {
           return null;
       }
 
+      StringWriter sw = new StringWriter();
+      XmlTextWriter writer = new XmlTextWriter(sw);
+
+      writer.Formatting = Formatting.Indented;
+      writer.WriteStartElement("rtmpMedia");
+        writer.WriteAttributeString("version", "1.0");
+        writer.WriteStartElement("mediaPath");
+          writer.WriteString(identifier);
+        writer.WriteEndElement();
+        writer.WriteStartElement("swfUrl");
+          writer.WriteString(swfurl);
+        writer.WriteEndElement();
+      writer.WriteEndElement();
+      writer.Close();
+      string xml = sw.ToString();
+
       return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
-             "&auth=" + authString + "&aifp=v001&slist=" + identifier + "|" +
-             "<rtmpMedia version=\"1.0\">" +
-             "<mediaPath>" + identifier + "</mediaPath>" +
-             "<swfUrl>" + swfurl + "</swfUrl>" +
-             "</rtmpMedia>";
+             "&auth=" + authString + "&aifp=v001&slist=" + identifier +
+             "|" + xml;
     }
 
     public List<ProgrammeItem>
