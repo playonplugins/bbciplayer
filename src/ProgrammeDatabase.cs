@@ -31,7 +31,7 @@ namespace Beeb {
 
       switch (entry.Attributes["kind"].Value) {
         case "akamai":
-          identifier = identifier.Replace(@"^mp4:", "");
+          identifier = Regex.Replace(identifier, @"^mp4:", "");
           break;
         case "limelight":
           break;
