@@ -124,7 +124,7 @@ namespace Beeb {
       writer.WriteEndElement();
       writer.Close();
       string xml = sw.ToString();
-      Log("Resolved XML: " + xml);
+      this.Log("Resolved XML: " + xml);
 
       return xml;
     }
