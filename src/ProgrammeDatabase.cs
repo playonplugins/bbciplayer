@@ -28,6 +28,7 @@ namespace Beeb {
       string swfurl     = "http://www.bbc.co.uk/emp/9player.swf?revision=10344_10753";
       string server     = entry.Attributes["server"].Value;
       string authString = entry.Attributes["authString"].Value;
+      string mediaPath  = identifier + "?auth=" + authString + "&aifp=v001";
 
       switch (entry.Attributes["kind"].Value) {
         case "akamai":
@@ -39,6 +40,9 @@ namespace Beeb {
           return null;
       }
 
+      string rtmpPart   = "rtmp://" + server + ":1935/ondemand?_fcs_vhost=" + server +
+                          "&auth=" + authString + "&aifp=v001&slist=" + identifier;
+
       StringWriter sw = new StringWriter();
       XmlTextWriter writer = new XmlTextWriter(sw);
 
@@ -46,18 +50,17 @@ namespace Beeb {
       writer.WriteStartElement("rtmpMedia");
         writer.WriteAttributeString("version", "1.0");
         writer.WriteStartElement("mediaPath");
-          writer.WriteString(identifier);
+          writer.WriteString(mediaPath);
         writer.WriteEndElement();
         writer.WriteStartElement("swfUrl");
           writer.WriteString(swfurl);
         writer.WriteEndElement();
       writer.WriteEndElement();
       writer.Close();
-      string xml = sw.ToString();
 
-      return "rtmp://" + server + "/ondemand?_fcs_vhost=" + server +
-             "&auth=" + authString + "&aifp=v001&slist=" + identifier +
-             "|" + xml;
+      string xmlPart = sw.ToString();
+
+      return rtmpPart + "|" + xmlPart;
     }
 
     public List<ProgrammeItem>
